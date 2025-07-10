@@ -1,0 +1,19 @@
+### Teste de registro de usuário
+POST http://localhost:3001/auth/register
+Content-Type: application/json
+
+{
+  "name": "Pedro Henrique Pinheiro de Almeida",
+  "email": "pedro.hp.almeida@gmail.com",
+  "phone": "11987221050"
+}
+
+### Teste de ativação de usuário
+# Copie o userId e activationCode da resposta do registro acima
+# Exemplo: POST http://localhost:3001/auth/activate/user_1234567890_abc123
+POST http://localhost:3001/auth/activate/user_1752115052879_u1scnorvz
+Content-Type: application/json
+
+{
+  "activationCode": "335949"
+} 

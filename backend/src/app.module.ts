@@ -11,20 +11,20 @@ import { PortfolioModule } from '@/modules/portfolio/portfolio.module';
 import { databaseConfig } from '@/core/config/database.config';
 
 @Module({
-    imports: [
-        // Configuração de variáveis de ambiente
-        ConfigModule.forRoot({
-            isGlobal: true,
-            envFilePath: '.env',
-        }),
+  imports: [
+    // Configuração de variáveis de ambiente
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
 
-        // Configuração do banco de dados
-        TypeOrmModule.forRoot(databaseConfig),
+    // Configuração do banco de dados
+    TypeOrmModule.forRoot(databaseConfig),
 
-        // Módulos da aplicação
-        AuthModule,
-        ContactModule,
-        PortfolioModule,
-    ],
+    // Módulos da aplicação
+    AuthModule,
+    ContactModule,
+    PortfolioModule,
+  ],
 })
-export class AppModule { } 
+export class AppModule {}

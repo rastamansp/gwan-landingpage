@@ -51,5 +51,5 @@ export const validateName = (value: string): boolean => {
  */
 export const validatePhone = (value: string): boolean => {
     // Basic phone validation - can be enhanced based on requirements
-    return /^[\+]?[1-9][\d]{0,15}$/.test(value.replace(/[\s\-\(\)]/g, ''));
+    return /^[\+]?[1-9][\d]{0,15}$/.test(value.replace(/[\s\-()]/g, ''));
 }; 

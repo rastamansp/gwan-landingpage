@@ -411,14 +411,41 @@ export class CreateContactUseCase {
 - Use health checks
 - Monitore performance
 
-## Checklist de Qualidade
+## Regras de Qualidade e Validação
+
+### Obrigatoriedade de Lint e Build
+- **ANTES DE CADA COMMIT**: Execute `npm run lint` e garanta ZERO erros
+- **ANTES DE CADA PUSH**: Execute `npm run build` e garanta ZERO erros
+- **ANTES DE CADA MERGE**: Execute `npm run test` e garanta todos os testes passando
+- **SEMPRE**: Valide se o projeto roda com `npm run dev` antes de commitar
+
+### Checklist de Qualidade
 
 Antes de commitar:
 - [ ] Código segue princípios SOLID
 - [ ] Use Cases implementados corretamente
+- [ ] **LINT**: `npm run lint` sem erros
+- [ ] **BUILD**: `npm run build` sem erros
+- [ ] **DEV**: `npm run dev` roda sem problemas
 - [ ] Testes passando
-- [ ] Linting sem erros
 - [ ] Documentação atualizada
 - [ ] Performance aceitável
 - [ ] Segurança implementada
-- [ ] Error handling adequado 
+- [ ] Error handling adequado
+
+### Comandos Obrigatórios
+```bash
+# Antes de cada commit
+npm run lint          # Deve retornar ZERO erros
+npm run build         # Deve retornar ZERO erros
+npm run dev           # Deve rodar sem problemas
+
+# Antes de cada push
+npm run test          # Todos os testes devem passar
+```
+
+### Regras de Commit
+- Use conventional commits: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:`
+- Mensagens em português
+- Descreva claramente a mudança
+- Exemplo: `feat: implementa sistema de autenticação em 3 passos` 
