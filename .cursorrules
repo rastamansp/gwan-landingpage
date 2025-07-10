@@ -1,0 +1,424 @@
+# Regras do Cursor - Gwan Landing Page
+
+## Princípios Fundamentais
+
+### SOLID Principles
+- **S**ingle Responsibility: Cada classe/função deve ter uma única responsabilidade
+- **O**pen/Closed: Aberto para extensão, fechado para modificação
+- **L**iskov Substitution: Subtipos devem ser substituíveis por seus tipos base
+- **I**nterface Segregation: Interfaces específicas são melhores que interfaces genéricas
+- **D**ependency Inversion: Dependa de abstrações, não de implementações concretas
+
+### Clean Architecture
+- **Entities**: Regras de negócio centrais (independentes de frameworks)
+- **Use Cases**: Casos de uso da aplicação (orquestração de regras de negócio)
+- **Interface Adapters**: Controllers, Gateways, Presenters
+- **Frameworks & Drivers**: UI, Database, External Interfaces
+
+### Use Case Pattern
+- Cada funcionalidade deve ter um Use Case dedicado
+- Use Cases devem ser independentes de frameworks
+- Input/Output DTOs para cada Use Case
+- Tratamento de erros específicos por Use Case
+
+## Estrutura de Módulos
+
+### Frontend (React)
+```
+src/
+├── modules/                   # Módulos da aplicação
+│   ├── auth/                  # Módulo de autenticação
+│   │   ├── domain/            # Entidades e regras de negócio
+│   │   ├── application/       # Use Cases
+│   │   ├── infrastructure/    # Implementações concretas
+│   │   └── presentation/      # Componentes React
+│   ├── contact/               # Módulo de contato
+│   │   ├── domain/
+│   │   ├── application/
+│   │   ├── infrastructure/
+│   │   └── presentation/
+│   └── portfolio/             # Módulo de portfólio
+│       ├── domain/
+│       ├── application/
+│       ├── infrastructure/
+│       └── presentation/
+├── shared/                    # Código compartilhado
+│   ├── domain/                # Entidades compartilhadas
+│   ├── infrastructure/        # Implementações compartilhadas
+│   └── presentation/          # Componentes compartilhados
+└── core/                      # Configurações centrais
+    ├── config/
+    ├── utils/
+    └── types/
+```
+
+### Backend (NestJS)
+```
+src/
+├── modules/                  # Módulos da aplicação
+│   ├── auth/                 # Módulo de autenticação
+│   │   ├── domain/           # Entidades e regras de negócio
+│   │   ├── application/      # Use Cases
+│   │   ├── infrastructure/   # Repositórios e serviços externos
+│   │   └── presentation/     # Controllers e DTOs
+│   ├── contact/              # Módulo de contato
+│   │   ├── domain/
+│   │   ├── application/
+│   │   ├── infrastructure/
+│   │   └── presentation/
+│   └── portfolio/            # Módulo de portfólio
+│       ├── domain/
+│       ├── application/
+│       ├── infrastructure/
+│       └── presentation/
+├── shared/                   # Código compartilhado
+│   ├── domain/
+│   ├── infrastructure/
+│   └── presentation/
+└── core/                     # Configurações centrais
+    ├── config/
+    ├── utils/
+    └── types/
+```
+
+## Regras de Implementação
+
+### 1. Domain Layer (Entidades e Regras de Negócio)
+```typescript
+// ✅ Correto - Entidade com regras de negócio
+export class Contact {
+  constructor(
+    private readonly id: string,
+    private readonly name: string,
+    private readonly email: string,
+    private readonly message: string,
+    private readonly createdAt: Date
+  ) {
+    this.validateEmail(email);
+    this.validateMessage(message);
+  }
+
+  private validateEmail(email: string): void {
+    if (!email.includes('@')) {
+      throw new Error('Invalid email format');
+    }
+  }
+
+  private validateMessage(message: string): void {
+    if (message.length < 10) {
+      throw new Error('Message too short');
+    }
+  }
+
+  // Getters para acessar propriedades
+  getEmail(): string { return this.email; }
+  getName(): string { return this.name; }
+}
+```
+
+### 2. Application Layer (Use Cases)
+```typescript
+// ✅ Correto - Use Case com responsabilidade única
+export class CreateContactUseCase {
+  constructor(
+    private readonly contactRepository: IContactRepository,
+    private readonly emailService: IEmailService
+  ) {}
+
+  async execute(input: CreateContactInput): Promise<CreateContactOutput> {
+    // 1. Validação de entrada
+    this.validateInput(input);
+
+    // 2. Criação da entidade
+    const contact = new Contact(
+      generateId(),
+      input.name,
+      input.email,
+      input.message,
+      new Date()
+    );
+
+    // 3. Persistência
+    await this.contactRepository.save(contact);
+
+    // 4. Notificação
+    await this.emailService.sendNotification(contact);
+
+    return {
+      id: contact.getId(),
+      success: true
+    };
+  }
+
+  private validateInput(input: CreateContactInput): void {
+    if (!input.name || !input.email || !input.message) {
+      throw new Error('Missing required fields');
+    }
+  }
+}
+```
+
+### 3. Infrastructure Layer (Implementações Concretas)
+```typescript
+// ✅ Correto - Implementação concreta da interface
+export class ContactRepository implements IContactRepository {
+  constructor(private readonly database: Database) {}
+
+  async save(contact: Contact): Promise<void> {
+    await this.database.contacts.create({
+      id: contact.getId(),
+      name: contact.getName(),
+      email: contact.getEmail(),
+      message: contact.getMessage(),
+      createdAt: contact.getCreatedAt()
+    });
+  }
+
+  async findById(id: string): Promise<Contact | null> {
+    const data = await this.database.contacts.findUnique({ where: { id } });
+    if (!data) return null;
+    
+    return new Contact(
+      data.id,
+      data.name,
+      data.email,
+      data.message,
+      data.createdAt
+    );
+  }
+}
+```
+
+### 4. Presentation Layer (Controllers/Components)
+```typescript
+// ✅ Correto - Controller focado apenas em apresentação
+@Controller('contact')
+export class ContactController {
+  constructor(
+    private readonly createContactUseCase: CreateContactUseCase
+  ) {}
+
+  @Post()
+  async createContact(@Body() dto: CreateContactDto): Promise<CreateContactResponse> {
+    try {
+      const result = await this.createContactUseCase.execute({
+        name: dto.name,
+        email: dto.email,
+        message: dto.message
+      });
+
+      return {
+        success: true,
+        data: result
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+}
+```
+
+## Regras de Nomenclatura
+
+### Interfaces
+- Prefixo `I` para interfaces: `IContactRepository`
+- Sufixo `UseCase` para casos de uso: `CreateContactUseCase`
+- Sufixo `Service` para serviços: `EmailService`
+- Sufixo `Repository` para repositórios: `ContactRepository`
+
+### Classes
+- Nomes descritivos: `Contact`, `CreateContactUseCase`
+- Evitar abreviações: `ContactRepo` ❌, `ContactRepository` ✅
+
+### Arquivos
+- PascalCase para classes: `Contact.ts`
+- camelCase para funções/utilitários: `contactUtils.ts`
+- kebab-case para componentes: `contact-form.tsx`
+
+## Regras de Dependências
+
+### Direção das Dependências
+```
+Presentation → Application → Domain
+Infrastructure → Application → Domain
+```
+
+### Inversão de Dependência
+```typescript
+// ✅ Correto - Dependência de abstração
+export class CreateContactUseCase {
+  constructor(
+    private readonly contactRepository: IContactRepository, // Interface
+    private readonly emailService: IEmailService // Interface
+  ) {}
+}
+
+// ❌ Incorreto - Dependência de implementação concreta
+export class CreateContactUseCase {
+  constructor(
+    private readonly contactRepository: ContactRepository, // Implementação
+    private readonly emailService: EmailService // Implementação
+  ) {}
+}
+```
+
+## Regras de Testes
+
+### Estrutura de Testes
+```
+tests/
+├── unit/                     # Testes unitários
+│   ├── domain/
+│   ├── application/
+│   └── infrastructure/
+├── integration/              # Testes de integração
+└── e2e/                      # Testes end-to-end
+```
+
+### Padrão de Testes
+```typescript
+// ✅ Correto - Teste focado em comportamento
+describe('CreateContactUseCase', () => {
+  it('should create contact successfully', async () => {
+    // Arrange
+    const mockRepository = createMockRepository();
+    const mockEmailService = createMockEmailService();
+    const useCase = new CreateContactUseCase(mockRepository, mockEmailService);
+    
+    // Act
+    const result = await useCase.execute({
+      name: 'John Doe',
+      email: 'john@example.com',
+      message: 'Hello world'
+    });
+    
+    // Assert
+    expect(result.success).toBe(true);
+    expect(mockRepository.save).toHaveBeenCalled();
+    expect(mockEmailService.sendNotification).toHaveBeenCalled();
+  });
+});
+```
+
+## Regras de Error Handling
+
+### Domain Errors
+```typescript
+// ✅ Correto - Erros específicos do domínio
+export class InvalidEmailError extends Error {
+  constructor(email: string) {
+    super(`Invalid email format: ${email}`);
+    this.name = 'InvalidEmailError';
+  }
+}
+
+export class MessageTooShortError extends Error {
+  constructor(minLength: number) {
+    super(`Message must be at least ${minLength} characters`);
+    this.name = 'MessageTooShortError';
+  }
+}
+```
+
+### Use Case Error Handling
+```typescript
+// ✅ Correto - Tratamento específico de erros
+export class CreateContactUseCase {
+  async execute(input: CreateContactInput): Promise<CreateContactOutput> {
+    try {
+      // Lógica do use case
+    } catch (error) {
+      if (error instanceof InvalidEmailError) {
+        return { success: false, error: 'Invalid email format' };
+      }
+      if (error instanceof MessageTooShortError) {
+        return { success: false, error: 'Message too short' };
+      }
+      throw error; // Re-throw erros não tratados
+    }
+  }
+}
+```
+
+## Regras de Performance
+
+### Lazy Loading
+- Use lazy loading para módulos grandes
+- Implemente code splitting por rota
+- Carregue dados sob demanda
+
+### Caching
+- Cache de dados frequentemente acessados
+- Implemente cache de consultas
+- Use React Query para cache no frontend
+
+### Otimizações
+- Evite re-renders desnecessários
+- Use React.memo para componentes pesados
+- Implemente virtualização para listas grandes
+
+## Regras de Segurança
+
+### Validação
+- Valide todas as entradas no backend
+- Use class-validator para DTOs
+- Sanitize dados antes de persistir
+
+### Autenticação
+- Implemente JWT com refresh tokens
+- Use bcrypt para senhas
+- Implemente rate limiting
+
+### Autorização
+- Use guards para proteger rotas
+- Implemente role-based access control
+- Valide permissões em use cases
+
+## Regras de Documentação
+
+### Comentários
+- Documente regras de negócio complexas
+- Explique algoritmos não óbvios
+- Documente APIs públicas
+
+### README
+- Mantenha README atualizado
+- Documente setup do projeto
+- Inclua exemplos de uso
+
+### API Documentation
+- Use Swagger/OpenAPI
+- Documente todos os endpoints
+- Inclua exemplos de request/response
+
+## Regras de Deploy
+
+### Environment Variables
+- Use .env para configurações
+- Nunca commite secrets
+- Valide variáveis obrigatórias
+
+### Build Process
+- Otimize builds de produção
+- Implemente CI/CD
+- Use Docker para consistência
+
+### Monitoring
+- Implemente logging estruturado
+- Use health checks
+- Monitore performance
+
+## Checklist de Qualidade
+
+Antes de commitar:
+- [ ] Código segue princípios SOLID
+- [ ] Use Cases implementados corretamente
+- [ ] Testes passando
+- [ ] Linting sem erros
+- [ ] Documentação atualizada
+- [ ] Performance aceitável
+- [ ] Segurança implementada
+- [ ] Error handling adequado 
