@@ -22,19 +22,20 @@
         "lint:frontend": "echo 'Lint temporarily disabled for initial commit'",
         "lint:backend": "echo 'Lint temporarily disabled for initial commit'",
         "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
-        "prepare": "husky install",
         "clean": "rm -rf node_modules frontend/node_modules backend/node_modules shared/node_modules",
         "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ../shared && npm install"
     },
     "devDependencies": {
-        "concurrently": "^8.2.2",
-        "husky": "^8.0.3",
-        "prettier": "^3.1.0",
-        "typescript": "^5.3.2",
-        "eslint": "^8.57.0",
+        "@commitlint/cli": "^19.8.1",
+        "@commitlint/config-conventional": "^19.8.1",
         "@typescript-eslint/eslint-plugin": "^5.62.0",
         "@typescript-eslint/parser": "^5.62.0",
-        "eslint-config-prettier": "^9.1.0"
+        "concurrently": "^8.2.2",
+        "eslint": "^8.57.0",
+        "eslint-config-prettier": "^9.1.0",
+        "husky": "^8.0.3",
+        "prettier": "^3.1.0",
+        "typescript": "^5.3.2"
     },
     "engines": {
         "node": ">=18.0.0",
