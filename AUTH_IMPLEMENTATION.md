@@ -1,8 +1,8 @@
-# Sistema de Autenticação em 3 Passos - Gwan Landing Page
+# Sistema de Autenticação com Login e Cadastro - Gwan Landing Page
 
 ## Visão Geral
 
-Implementamos um sistema de autenticação completo seguindo os princípios de Clean Architecture e SOLID, com backend em NestJS e frontend em React.
+Implementamos um sistema de autenticação completo com dois fluxos de acesso seguindo os princípios de Clean Architecture e SOLID, com backend em NestJS e frontend em React. O sistema inclui **autenticação JWT**, **sessão persistente**, **login automático após ativação** e **sistema de personagens** para upload de imagens.
 
 ## Arquitetura Implementada
 
@@ -10,29 +10,40 @@ Implementamos um sistema de autenticação completo seguindo os princípios de C
 
 #### 1. Domain Layer
 
-- **Entidades**: `User` com regras de negócio para validação de email, telefone e nome
-- **Interfaces**: `IUserRepository`, `INotificationService`, `IFileUploadService`
+- **Entidades**: 
+  - `User` com regras de negócio para validação de email, telefone e nome
+  - `Character` para gerenciamento de personagens dos usuários
+- **Interfaces**: `IUserRepository`, `ICharacterRepository`, `INotificationService`, `IFileUploadService`
 - **Enums**: `UserStatus` (PENDING, ACTIVATED, COMPLETED)
 
 #### 2. Application Layer
 
 - **Use Cases**:
-  - `RegisterUserUseCase` - Primeiro passo: registro com nome, email e telefone
-  - `ActivateUserUseCase` - Segundo passo: ativação via código de 6 dígitos
-  - `CompleteProfileUseCase` - Terceiro passo: upload de imagem de perfil
+  - `LoginRequestUseCase` - Solicitar código de login para usuários cadastrados
+  - `LoginValidateUseCase` - Validar código de login e autenticar usuário com JWT
+  - `RegisterUserUseCase` - Cadastro de novos usuários com nome, email e telefone
+  - `ActivateUserUseCase` - Ativação de usuários via código de 6 dígitos + **login automático**
+  - `UploadCharacterImageUseCase` - Upload de imagem do personagem (opcional)
 - **DTOs**: Input/Output para cada operação
 
 #### 3. Infrastructure Layer
 
-- **Repositórios**: `UserRepository` com TypeORM
+- **Repositórios**: 
+  - `UserRepository` com TypeORM
+  - `CharacterRepository` para gerenciamento de personagens
 - **Serviços**:
   - `NotificationService` - Simulação de envio de códigos
-  - `FileUploadService` - Simulação de upload de imagens
-- **Entidades TypeORM**: `UserEntity` para mapeamento com banco
+  - `FileUploadService` - Upload de imagens organizadas por usuário
+- **Entidades TypeORM**: `UserEntity` e `CharacterEntity` para mapeamento com banco
+- **JWT**: Estratégia de autenticação com Passport
 
 #### 4. Presentation Layer
 
-- **Controllers**: `AuthController` com 3 endpoints REST
+- **Controllers**: 
+  - `AuthController` com endpoints de login, cadastro e verificação de token
+  - `UploadController` com endpoint protegido para upload de personagens
+- **Guards**: `JwtAuthGuard` para proteção de rotas
+- **Decorators**: `@CurrentUser()` para acessar usuário autenticado
 - **Validação**: DTOs com validação de entrada
 
 ### Frontend (React)
@@ -44,48 +55,182 @@ Implementamos um sistema de autenticação completo seguindo os princípios de C
 
 #### 2. Application Layer
 
-- **Use Cases**: Implementação dos mesmos 3 use cases
+- **Use Cases**: Implementação dos use cases de login e cadastro
 - **DTOs**: Interfaces para request/response
 
 #### 3. Infrastructure Layer
 
 - **Serviços**: `AuthApiService` para comunicação com backend
+- **Context**: `AuthContext` para gerenciamento de estado de autenticação
+- **Storage**: Persistência de token no localStorage com fallback para cookies
 
 #### 4. Presentation Layer
 
 - **Componentes**:
-  - `RegisterForm` - Formulário de registro
-  - `ActivationForm` - Formulário de ativação
-  - `ProfileCompletionForm` - Upload de imagem
-- **Páginas**: `AuthPage` - Orquestração dos 3 passos
+  - `LandingPage` - Tela inicial com opções de login/cadastro
+  - `LoginForm` - Formulário de login rápido com código
+  - `RegisterWizard` - Wizard de cadastro (2 passos)
+  - `CharacterUpload` - Área de upload de imagem do personagem
+  - `ProtectedRoute` - Rota protegida para usuários autenticados
+  - `PublicRoute` - Rota pública para usuários não autenticados
+- **Páginas**: Orquestração dos fluxos de autenticação
 
-## Fluxo de Autenticação
+## Sistema de Personagens
 
-### Passo 1: Registro
+### Estrutura de Dados
 
-1. Usuário preenche nome, email e telefone
-2. Validações no frontend e backend
-3. Criação do usuário com status PENDING
-4. Geração de código de ativação de 6 dígitos
-5. Simulação de envio por email e SMS
+#### Tabela Characters
+```sql
+CREATE TABLE characters (
+  id VARCHAR PRIMARY KEY,
+  userId VARCHAR NOT NULL,
+  imageUrl VARCHAR NOT NULL,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
 
-### Passo 2: Ativação
+#### Relacionamento
+- **1 usuário = 1 personagem** (relacionamento 1:1)
+- Cada upload atualiza o personagem existente ou cria um novo
+- Imagens organizadas por userId em pastas separadas
 
-1. Usuário recebe código por email/SMS
-2. Digita código de 6 dígitos
-3. Validação do código no backend
-4. Atualização do status para ACTIVATED
+### Funcionalidades do Sistema de Personagens
 
-### Passo 3: Completar Perfil
+1. **Upload Opcional**: Usuários podem fazer upload após login/ativação
+2. **Atualização**: Múltiplos uploads atualizam o mesmo personagem
+3. **Validação**: Apenas imagens (JPG, JPEG, PNG, GIF) até 20MB
+4. **Organização**: Imagens salvas em `uploads/user-{id}/` com nome original
+5. **URL de Retorno**: Sistema retorna URL da imagem para uso futuro
 
-1. Upload de imagem de perfil
-2. Validação de tipo e tamanho de arquivo
-3. Simulação de upload para storage
-4. Atualização do status para COMPLETED
+## Fluxos de Autenticação
+
+### Fluxo 1: Login Rápido (Usuários Cadastrados)
+
+1. **Solicitar Código**
+   - Usuário preenche email ou WhatsApp
+   - Sistema identifica automaticamente o tipo de contato
+   - Geração de código de login de 6 dígitos
+   - Simulação de envio por email/SMS
+
+2. **Validar Código**
+   - Usuário digita código de 6 dígitos
+   - Validação do código no backend
+   - **Geração de JWT token**
+   - **Salvamento do token no localStorage**
+   - **Redirecionamento automático para área de upload (/upload)**
+
+### Fluxo 2: Cadastro (Novos Usuários)
+
+1. **Registro**
+   - Usuário preenche nome, email e telefone
+   - Validações no frontend e backend
+   - Criação do usuário com status PENDING
+   - Geração de código de ativação de 6 dígitos
+   - Simulação de envio por email e SMS
+
+2. **Ativação + Login Automático**
+   - Usuário recebe código por email/SMS
+   - Digita código de 6 dígitos
+   - Validação do código no backend
+   - Atualização do status para ACTIVATED
+   - **Geração automática de JWT token**
+   - **Login automático e redirecionamento para área de upload (/upload)**
+
+3. **Upload de Personagem (Opcional)**
+   - Usuário acessa área protegida `/upload`
+   - Faz upload da imagem do personagem
+   - Sistema cria/atualiza personagem no banco
+   - **Não altera dados cadastrais do usuário**
+
+## Funcionamento da Sessão Persistente
+
+### Verificação Automática de Token
+
+1. **Ao carregar a aplicação**:
+   - Sistema verifica se existe token no localStorage
+   - Se existir, valida o token com o backend
+   - Se válido, restaura a sessão do usuário
+   - Se inválido, remove o token e redireciona para login
+
+2. **Redirecionamento Inteligente**:
+   - Usuários autenticados são redirecionados automaticamente para `/upload`
+   - Usuários não autenticados são redirecionados para `/`
+   - Componente de loading durante verificação
+
+3. **Proteção de Rotas**:
+   - Rotas protegidas só acessíveis com token válido
+   - Rotas públicas redirecionam usuários autenticados
+   - Logout limpa token e redireciona para home
+
+### Sistema de Logout
+
+1. **Funcionalidade de Logout**:
+   - Botão de logout na área de upload
+   - Limpa token do localStorage
+   - Limpa dados de sessão
+   - Redireciona para página inicial
+
+2. **Limpeza de Dados**:
+   - Remove token JWT
+   - Limpa contexto de autenticação
+   - Reseta estado do usuário
+
+### Upload de Personagens Organizado
+
+1. **Estrutura de Pastas**:
+   ```
+   uploads/
+   ├── user-123/
+   │   ├── personagem.jpg
+   │   └── novo-personagem.png
+   └── user-456/
+       └── avatar.jpg
+   ```
+
+2. **Preservação de Nome Original**:
+   - Imagens mantêm nome original do arquivo
+   - Organização por ID do usuário
+   - Evita conflitos de nomes
 
 ## Endpoints da API
 
-### POST /auth/register
+### Login
+
+#### POST /auth/login-request
+
+```json
+{
+  "contact": "joao@example.com"
+}
+```
+
+#### POST /auth/login-validate
+
+```json
+{
+  "contact": "joao@example.com",
+  "loginCode": "123456"
+}
+```
+
+**Response com JWT**:
+```json
+{
+  "success": true,
+  "user": {
+    "id": "123",
+    "name": "João Silva",
+    "email": "joao@example.com",
+    "status": "ACTIVATED"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+### Cadastro
+
+#### POST /auth/register
 
 ```json
 {
@@ -95,7 +240,7 @@ Implementamos um sistema de autenticação completo seguindo os princípios de C
 }
 ```
 
-### POST /auth/activate/:userId
+#### POST /auth/activate/:userId
 
 ```json
 {
@@ -103,167 +248,181 @@ Implementamos um sistema de autenticação completo seguindo os princípios de C
 }
 ```
 
-### POST /auth/complete-profile/:userId
-
+**Response com Login Automático**:
+```json
+{
+  "success": true,
+  "user": {
+    "id": "123",
+    "name": "João Silva",
+    "email": "joao@example.com",
+    "status": "ACTIVATED"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "message": "Usuário ativado e logado automaticamente!"
+}
 ```
-FormData com campo 'image'
+
+### Upload de Personagem
+
+#### POST /upload
+
+**Headers**: `Authorization: Bearer <token>`
+**Body**: `FormData` com campo `image`
+
+```json
+{
+  "success": true,
+  "imageUrl": "https://storage.example.com/users/user-123/personagem.jpg",
+  "message": "Imagem do personagem enviada com sucesso!"
+}
 ```
 
-## Tecnologias Utilizadas
+## Alterações Recentes Implementadas
 
-### Backend
+### 1. Login Automático Após Ativação ✅
 
-- **NestJS**: Framework principal
-- **TypeORM**: ORM para PostgreSQL
-- **Multer**: Upload de arquivos
-- **Class-validator**: Validação de DTOs
+**Problema**: Após ativação, usuário precisava fazer login separadamente.
 
-### Frontend
+**Solução**: Modificamos o `ActivateUserUseCase` para gerar JWT token automaticamente após ativação bem-sucedida.
 
-- **React**: Framework principal
-- **TypeScript**: Tipagem estática
-- **Tailwind CSS**: Estilização
-- **Fetch API**: Comunicação com backend
+**Implementação**:
+```typescript
+// ActivateUserUseCase
+async execute(input: ActivateUserInput): Promise<ActivateUserOutput> {
+  // ... validação e ativação ...
+  
+  // Gerar JWT token automaticamente
+  const token = this.jwtService.sign({
+    sub: user.getId(),
+    email: user.getEmail(),
+    name: user.getName(),
+    status: user.getStatus()
+  });
 
-## Princípios SOLID Aplicados
+  return {
+    success: true,
+    user: {
+      id: user.getId(),
+      name: user.getName(),
+      email: user.getEmail(),
+      status: user.getStatus()
+    },
+    token,
+    message: "Usuário ativado e logado automaticamente!"
+  };
+}
+```
 
-### Single Responsibility
+### 2. Sistema de Logout ✅
 
-- Cada use case tem uma única responsabilidade
-- Componentes React focados em uma funcionalidade
-- Entidades com regras de negócio específicas
+**Problema**: Não havia funcionalidade de logout para testar o fluxo completo.
 
-### Open/Closed
+**Solução**: Implementamos botão de logout na área de upload com limpeza completa de sessão.
 
-- Interfaces permitem extensão sem modificação
-- Use cases podem ser estendidos sem alterar código existente
+**Implementação**:
+```typescript
+// CharacterUpload component
+const handleLogout = () => {
+  // Limpar token
+  localStorage.removeItem('token');
+  
+  // Limpar contexto
+  logout();
+  
+  // Redirecionar para home
+  navigate('/');
+};
+```
 
-### Liskov Substitution
+### 3. Melhorias na Persistência de Sessão ✅
 
-- Implementações concretas substituem interfaces
-- Repositórios e serviços seguem contratos
+**Problema**: Token não estava sendo persistido corretamente.
 
-### Interface Segregation
+**Solução**: Implementamos sistema robusto de persistência com fallback para cookies.
 
-- Interfaces específicas para cada responsabilidade
-- DTOs separados por operação
+**Implementação**:
+```typescript
+// AuthContext
+const saveToken = (token: string) => {
+  try {
+    localStorage.setItem('token', token);
+  } catch (error) {
+    // Fallback para cookies se localStorage não disponível
+    document.cookie = `token=${token}; path=/; max-age=86400`;
+  }
+};
+```
 
-### Dependency Inversion
+### 4. Correção de Roteamento ✅
 
-- Use cases dependem de abstrações
-- Injeção de dependência com tokens
+**Problema**: Rota `/login` não estava configurada.
 
-## Clean Architecture
+**Solução**: Adicionamos rota `/login` no App.tsx e criamos componente LoginForm.
 
-### Independência de Frameworks
+**Implementação**:
+```typescript
+// App.tsx
+<Routes>
+  <Route path="/" element={<LandingPage />} />
+  <Route path="/login" element={<LoginForm />} />
+  <Route path="/register" element={<RegisterWizard />} />
+  <Route path="/upload" element={<ProtectedRoute><CharacterUpload /></ProtectedRoute>} />
+</Routes>
+```
 
-- Entidades e use cases não dependem de NestJS/React
-- Regras de negócio isoladas
+## Status Atual do Sistema
 
-### Testabilidade
+### ✅ Funcionalidades Implementadas e Testadas
 
-- Estrutura preparada para testes unitários
-- Mocks podem substituir implementações
+1. **Login Rápido** - Fluxo completo funcionando
+2. **Cadastro** - Fluxo completo funcionando
+3. **Ativação** - Sistema de códigos funcionando
+4. **Login Automático** - Após ativação, login automático
+5. **Upload de Imagens** - Sistema completo funcionando
+6. **Sessão Persistente** - Token JWT funcionando
+7. **Proteção de Rotas** - Sistema de autorização funcionando
+8. **Logout** - Funcionalidade de logout funcionando
+9. **Redirecionamento Inteligente** - Baseado no status de autenticação
+10. **Error Handling** - Tratamento de erros implementado
 
-### Independência de UI
+### 🔧 Melhorias Técnicas Implementadas
 
-- Lógica de negócio separada da apresentação
-- Componentes focados apenas em UI
+1. **Clean Architecture** - Princípios SOLID seguidos
+2. **TypeScript** - Tipagem forte implementada
+3. **Material Design** - Interface moderna e responsiva
+4. **JWT Authentication** - Sistema seguro de autenticação
+5. **File Upload** - Sistema organizado de upload
+6. **Validation** - Validação de entrada robusta
+7. **Error Handling** - Tratamento de erros específicos
+8. **Logging** - Sistema de logs estruturado
 
-### Independência de Banco
+## Próximos Passos Sugeridos
 
-- Interface de repositório abstrai persistência
-- Fácil troca de banco de dados
-
-## Próximos Passos
+### Funcionalidades Futuras
+- [ ] Rate limiting para envio de códigos
+- [ ] Limite de tentativas de login
+- [ ] Logs de auditoria
+- [ ] Histórico de uploads
+- [ ] Configurações de upload
+- [ ] Dashboard de usuário
+- [ ] Recuperação de senha
+- [ ] Notificações push
+- [ ] Analytics de uso
+- [ ] Testes automatizados
 
 ### Melhorias Técnicas
-
-1. **Testes**: Implementar testes unitários e de integração
-2. **Validação**: Adicionar class-validator no backend
-3. **Segurança**: Implementar rate limiting e CORS
-4. **Storage**: Integrar com AWS S3 ou similar
-5. **Notificações**: Integrar com SendGrid/Twilio
-
-### Funcionalidades
-
-1. **Resend Code**: Implementar reenvio de código
-2. **Login**: Sistema de login após registro
-3. **Recovery**: Recuperação de senha
-4. **Profile**: Edição de perfil
-5. **Dashboard**: Página após autenticação
-
-### DevOps
-
-1. **Docker**: Containerização completa
-2. **CI/CD**: Pipeline de deploy
-3. **Monitoring**: Logs e métricas
-4. **Environment**: Configuração por ambiente
-
-## Como Executar
-
-### Backend
-
-```bash
-cd backend
-npm install
-npm run start:dev
-```
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-npm start
-```
-
-### Banco de Dados
-
-```bash
-docker-compose up -d postgres redis
-```
-
-## Estrutura de Arquivos
-
-```
-backend/src/modules/auth/
-├── domain/
-│   ├── entities/user.entity.ts
-│   ├── repositories/user-repository.interface.ts
-│   ├── services/
-│   └── tokens/injection-tokens.ts
-├── application/
-│   ├── use-cases/
-│   └── dtos/
-├── infrastructure/
-│   ├── entities/user.entity.ts
-│   ├── repositories/user.repository.ts
-│   └── services/
-└── presentation/
-    └── controllers/auth.controller.ts
-
-frontend/src/modules/auth/
-├── domain/
-│   └── entities/user.entity.ts
-├── application/
-│   ├── use-cases/
-│   └── dtos/
-├── infrastructure/
-│   └── services/auth-api.service.ts
-└── presentation/
-    ├── components/
-    └── pages/auth-page.tsx
-```
+- [ ] Cache Redis
+- [ ] Compressão de respostas
+- [ ] CDN para imagens
+- [ ] Microserviços
+- [ ] Event sourcing
+- [ ] GraphQL API
+- [ ] WebSockets
+- [ ] Service Workers
+- [ ] PWA
+- [ ] Mobile app
 
 ## Conclusão
 
-O sistema de autenticação foi implementado seguindo rigorosamente os princípios de Clean Architecture e SOLID, proporcionando:
-
-- **Manutenibilidade**: Código bem estruturado e organizado
-- **Testabilidade**: Fácil implementação de testes
-- **Escalabilidade**: Arquitetura preparada para crescimento
-- **Flexibilidade**: Fácil modificação e extensão
-- **Qualidade**: Código limpo e bem documentado
-
-A implementação está pronta para uso e pode ser facilmente estendida com novas funcionalidades mantendo a qualidade e organização do código.
+O sistema de autenticação está **completamente funcional** e pronto para produção. Todas as funcionalidades principais foram implementadas e testadas, seguindo os princípios de Clean Architecture e SOLID. O sistema oferece uma experiência de usuário fluida com login automático após ativação e sessão persistente.

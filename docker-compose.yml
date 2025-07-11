@@ -35,7 +35,7 @@ services:
     container_name: gwan_backend
     environment:
       NODE_ENV: development
-      DATABASE_URL: postgresql://postgres:pazdedeus@gwan.com.br:5433/gwan_vector
+      DATABASE_URL: postgresql://postgres:pazdedeus@db:5432/gwan_vector
       REDIS_URL: redis://redis:6379
       PORT: 3001
     ports:
