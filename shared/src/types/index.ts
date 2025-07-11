@@ -27,40 +27,133 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
     };
 }
 
-export interface ContactFormData {
-    name: string;
-    email: string;
-    message: string;
-    subject?: string;
-}
-
+// User Types
 export interface User {
-    id: string;
-    email: string;
-    name: string;
-    role: UserRole;
-    createdAt: Date;
-    updatedAt: Date;
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  status: string;
+  profileImageUrl?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export enum UserRole {
-    ADMIN = 'admin',
-    USER = 'user',
+// Auth Types
+export interface AuthState {
+  loading: boolean;
+  isAuthenticated: boolean;
+  hasToken: boolean;
+  hasUser: boolean;
+  user?: User;
 }
 
-export interface AuthToken {
-    accessToken: string;
-    refreshToken: string;
-    expiresIn: number;
+export interface LoginRequest {
+  contact: string;
 }
 
-export interface LoginCredentials {
-    email: string;
-    password: string;
+export interface LoginValidate {
+  contact: string;
+  loginCode: string;
 }
 
-export interface RegisterData {
-    name: string;
-    email: string;
-    password: string;
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  phone: string;
+}
+
+export interface ActivateRequest {
+  activationCode: string;
+}
+
+// API Response Types
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+}
+
+export interface LoginResponse {
+  success: boolean;
+  message: string;
+  userId?: string;
+  token?: string;
+  userData?: User;
+  loginCode?: string;
+}
+
+export interface RegisterResponse {
+  success: boolean;
+  message: string;
+  userId?: string;
+  activationCode?: string;
+}
+
+export interface ActivateResponse {
+  success: boolean;
+  message: string;
+  token?: string;
+  userData?: User;
+}
+
+// Upload Types
+export interface UploadResponse {
+  success: boolean;
+  message: string;
+  imageUrl?: string;
+  error?: string;
+}
+
+// Form Types
+export interface FormField {
+  name: string;
+  label: string;
+  type: string;
+  required?: boolean;
+  placeholder?: string;
+  validation?: any;
+}
+
+// Navigation Types
+export interface NavigationItem {
+  label: string;
+  path: string;
+  icon?: string;
+  children?: NavigationItem[];
+}
+
+// Theme Types
+export interface Theme {
+  mode: 'light' | 'dark';
+  primary: string;
+  secondary: string;
+  background: string;
+  surface: string;
+  text: string;
+  textSecondary: string;
+}
+
+// Validation Types
+export interface ValidationRule {
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  pattern?: RegExp;
+  custom?: (value: any) => boolean | string;
+}
+
+// Error Types
+export interface ApiError {
+  message: string;
+  code?: string;
+  details?: any;
+}
+
+// Loading States
+export interface LoadingState {
+  loading: boolean;
+  error?: string;
+  success?: boolean;
 } 

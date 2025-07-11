@@ -52,9 +52,10 @@ export class CompleteProfileUseCase {
         );
       }
 
-      // 4. Upload da imagem
+      // 4. Upload da imagem com userId para organização
       const imageUrl = await this.fileUploadService.uploadImage(
-        input.imageFile
+        input.imageFile,
+        input.userId
       );
 
       // 5. Completar perfil

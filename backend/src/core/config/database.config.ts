@@ -2,9 +2,11 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 export const databaseConfig: TypeOrmModuleOptions = {
   type: 'postgres',
-  url:
-    process.env.DATABASE_URL ||
-    'postgresql://postgres:pazdedeus@gwan.com.br:5433/gwan_vector',
+  host: process.env.DB_HOST || 'gwan.com.br',
+  port: parseInt(process.env.DB_PORT || '5433'),
+  username: process.env.DB_USERNAME || 'postgres',
+  password: process.env.DB_PASSWORD || 'pazdedeus',
+  database: process.env.DB_DATABASE || 'gwan_vector',
   entities: [__dirname + '/../../**/*.entity{.ts,.js}'],
   synchronize: process.env.NODE_ENV !== 'production',
   logging: process.env.NODE_ENV === 'development',

@@ -2,24 +2,25 @@
 
 ## 📋 Visão Geral
 
-O **Gwan Landing Page** é uma plataforma de cadastro e ativação de usuários em 3 passos, desenvolvida com React.js (frontend) e NestJS (backend), seguindo princípios de Clean Architecture e SOLID.
+O **Gwan Landing Page** é uma plataforma de autenticação e upload de imagens com dois fluxos de acesso, desenvolvida com React.js (frontend) e NestJS (backend), seguindo princípios de Clean Architecture e SOLID.
 
-### 🔐 Processo de Login/Cadastro em 3 Passos
+### 🔐 Fluxos de Autenticação
 
-1. **Passo 1 - Cadastro Inicial**
-   - Usuário acessa a URL e é redirecionado para a landing page
-   - Preenche formulário com: **Nome** e **Contato** (WhatsApp ou Email)
-   - Backend recebe e valida os dados
+#### **1. Login Rápido (Usuários Cadastrados)**
+- Usuário acessa a landing page e escolhe "Já tenho conta"
+- Preenche **Email ou WhatsApp** (identificação automática)
+- Recebe **código de 6 dígitos** via email/SMS
+- Valida o código e acessa a área de upload
 
-2. **Passo 2 - Ativação por Código**
-   - Usuário recebe código de ativação (via WhatsApp/Email)
-   - Preenche formulário com: **ID do contato**, **Contato** e **Código de ativação**
-   - Backend valida o código e ativa o usuário
+#### **2. Cadastro (Novos Usuários)**
+- Usuário escolhe "Quero me cadastrar"
+- **Passo 1**: Preenche **Nome**, **Email** e **Telefone**
+- **Passo 2**: Recebe **código de ativação de 6 dígitos** via email/SMS
+- Valida o código e acessa a área de upload
 
-3. **Passo 3 - Upload de Imagem**
-   - Usuário visualiza interface de upload de imagem
-   - Envia imagem através do formulário
-   - Backend recebe e armazena a imagem em pasta local
+### 🖼️ Funcionalidade Principal - Upload de Imagem
+
+Após autenticação (login ou cadastro), o usuário é direcionado para a **área de upload de imagem**, que é a funcionalidade principal da plataforma.
 
 ## 🏗️ Arquitetura
 
@@ -28,14 +29,20 @@ O **Gwan Landing Page** é uma plataforma de cadastro e ativação de usuários 
 ```
 src/
 ├── modules/                   # Módulos da aplicação
-│   ├── auth/                  # Módulo de autenticação (3 passos)
+│   ├── auth/                  # Módulo de autenticação (login/cadastro)
 │   │   ├── domain/            # Entidades e regras de negócio
 │   │   ├── application/       # Use Cases
 │   │   ├── infrastructure/    # Implementações concretas
 │   │   └── presentation/      # Componentes React
-│   │       ├── Step1Form/     # Formulário de cadastro inicial
-│   │       ├── Step2Form/     # Formulário de ativação
-│   │       └── Step3Form/     # Formulário de upload
+│   │       ├── LoginForm/     # Formulário de login
+│   │       ├── RegisterForm/  # Formulário de cadastro
+│   │       └── AuthWizard/    # Wizard de cadastro (2 passos)
+│   ├── upload/                # Módulo de upload de imagem
+│   │   ├── domain/            # Entidades e regras de negócio
+│   │   ├── application/       # Use Cases
+│   │   ├── infrastructure/    # Implementações concretas
+│   │   └── presentation/      # Componentes React
+│   │       └── UploadArea/    # Área de upload de imagem
 │   ├── contact/               # Módulo de contato
 │   │   ├── domain/
 │   │   ├── application/
@@ -61,24 +68,30 @@ src/
 ```
 src/
 ├── modules/                 # Módulos da aplicação
-│   ├── auth/                # Módulo de autenticação (3 passos)
+│   ├── auth/                # Módulo de autenticação (login/cadastro)
 │   │   ├── domain/          # Entidades e regras de negócio
 │   │   │   ├── User.ts      # Entidade de usuário
 │   │   │   ├── Contact.ts   # Entidade de contato
 │   │   │   └── ActivationCode.ts # Entidade de código
 │   │   ├── application/     # Use Cases
-│   │   │   ├── CreateContactUseCase.ts
-│   │   │   ├── ValidateCodeUseCase.ts
-│   │   │   └── UploadImageUseCase.ts
+│   │   │   ├── LoginRequestUseCase.ts
+│   │   │   ├── LoginValidateUseCase.ts
+│   │   │   ├── RegisterUserUseCase.ts
+│   │   │   └── ActivateUserUseCase.ts
 │   │   ├── infrastructure/  # Repositórios e serviços externos
 │   │   │   ├── UserRepository.ts
 │   │   │   ├── WhatsAppService.ts
 │   │   │   └── EmailService.ts
 │   │   └── presentation/    # Controllers e DTOs
 │   │       ├── AuthController.ts
-│   │       ├── Step1Dto.ts
-│   │       ├── Step2Dto.ts
-│   │       └── Step3Dto.ts
+│   │       ├── LoginDto.ts
+│   │       ├── RegisterDto.ts
+│   │       └── ActivateDto.ts
+│   ├── upload/              # Módulo de upload de imagem
+│   │   ├── domain/          # Entidades e regras de negócio
+│   │   ├── application/     # Use Cases
+│   │   ├── infrastructure/  # Repositórios e serviços externos
+│   │   └── presentation/    # Controllers e DTOs
 │   ├── contact/             # Módulo de contato
 │   │   ├── domain/
 │   │   ├── application/
@@ -132,7 +145,7 @@ src/
 - [x] Configurar logging estruturado
 - [x] Configurar CORS e rate limiting
 
-### Fase 4: Implementação do Módulo de Autenticação (3 Passos)
+### Fase 4: Implementação do Sistema de Autenticação
 
 #### 4.1 - Backend: Entidades e Regras de Negócio
 
@@ -142,12 +155,12 @@ src/
 - [ ] Implementar regras de negócio para geração de códigos
 - [ ] Implementar validações de contato (WhatsApp/Email)
 
-#### 4.2 - Backend: Use Cases
+#### 4.2 - Backend: Use Cases de Autenticação
 
-- [ ] Implementar `CreateContactUseCase` (Passo 1)
-- [ ] Implementar `SendActivationCodeUseCase` (Envio de código)
-- [ ] Implementar `ValidateCodeUseCase` (Passo 2)
-- [ ] Implementar `UploadImageUseCase` (Passo 3)
+- [ ] Implementar `LoginRequestUseCase` (Solicitar código de login)
+- [ ] Implementar `LoginValidateUseCase` (Validar código de login)
+- [ ] Implementar `RegisterUserUseCase` (Cadastro de usuário)
+- [ ] Implementar `ActivateUserUseCase` (Ativação de usuário)
 - [ ] Implementar tratamento de erros específicos
 
 #### 4.3 - Backend: Infrastructure
@@ -156,37 +169,62 @@ src/
 - [ ] Implementar `ContactRepository` com TypeORM
 - [ ] Implementar `WhatsAppService` para envio de códigos
 - [ ] Implementar `EmailService` para envio de códigos
-- [ ] Implementar `FileUploadService` para imagens
 - [ ] Configurar pasta de uploads
 
 #### 4.4 - Backend: Controllers e DTOs
 
-- [ ] Implementar `AuthController` com endpoints dos 3 passos
+- [ ] Implementar `AuthController` com endpoints de login e cadastro
 - [ ] Criar DTOs para validação de entrada:
-  - `CreateContactDto` (Passo 1)
-  - `ValidateCodeDto` (Passo 2)
-  - `UploadImageDto` (Passo 3)
-- [ ] Implementar validação de arquivos
+  - `LoginRequestDto` (Solicitar código de login)
+  - `LoginValidateDto` (Validar código de login)
+  - `RegisterUserDto` (Cadastro de usuário)
+  - `ActivateUserDto` (Ativação de usuário)
 - [ ] Implementar respostas padronizadas
 
 #### 4.5 - Frontend: Componentes de Autenticação
 
-- [ ] Criar `Step1Form` - Formulário de cadastro inicial
-- [ ] Criar `Step2Form` - Formulário de ativação
-- [ ] Criar `Step3Form` - Formulário de upload
+- [ ] Criar `LandingPage` - Tela inicial com opções
+- [ ] Criar `LoginForm` - Formulário de login rápido
+- [ ] Criar `RegisterWizard` - Wizard de cadastro (2 passos)
 - [ ] Implementar validações de formulário
-- [ ] Implementar upload de arquivos
 - [ ] Implementar feedback visual de progresso
 
 #### 4.6 - Frontend: Integração com Backend
 
-- [ ] Implementar serviços de API para cada passo
+- [ ] Implementar serviços de API para login e cadastro
 - [ ] Implementar tratamento de erros
 - [ ] Implementar loading states
-- [ ] Implementar navegação entre passos
-- [ ] Implementar persistência de dados entre passos
+- [ ] Implementar navegação entre telas
+- [ ] Implementar persistência de dados
 
-### Fase 5: Configuração de Desenvolvimento
+### Fase 5: Implementação do Módulo de Upload
+
+#### 5.1 - Backend: Use Cases de Upload
+
+- [ ] Implementar `UploadImageUseCase` (Upload de imagem)
+- [ ] Implementar validações de arquivo
+- [ ] Implementar armazenamento de imagem
+
+#### 5.2 - Backend: Infrastructure de Upload
+
+- [ ] Implementar `FileUploadService` para imagens
+- [ ] Configurar pasta de uploads
+- [ ] Implementar validações de tipo e tamanho
+
+#### 5.3 - Backend: Controllers de Upload
+
+- [ ] Implementar `UploadController` com endpoint de upload
+- [ ] Criar DTOs para upload de imagem
+- [ ] Implementar validação de arquivos
+
+#### 5.4 - Frontend: Componentes de Upload
+
+- [ ] Criar `UploadArea` - Área principal de upload
+- [ ] Implementar upload de arquivos
+- [ ] Implementar preview de imagem
+- [ ] Implementar feedback de upload
+
+### Fase 6: Configuração de Desenvolvimento
 
 - [ ] Configurar variáveis de ambiente (.env)
 - [ ] Configurar scripts de build e deploy
@@ -194,13 +232,10 @@ src/
 - [ ] Configurar testes unitários e de integração
 - [ ] Configurar CI/CD básico
 
-### Fase 6: Implementação de Funcionalidades Adicionais
+### Fase 7: Implementação de Funcionalidades Adicionais
 
 - [ ] Implementar módulo de contato (landing page)
 - [ ] Implementar formulário de contato com validação
-- [ ] Implementar serviço de email para contato
-- [ ] Implementar landing page responsiva
-- [ ] Implementar seções: Hero, Sobre, Serviços, Portfólio, Contato
 
 ## 📋 Tecnologias Definidas
 

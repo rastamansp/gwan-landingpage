@@ -63,4 +63,13 @@ export class AuthApiService {
             body: formData,
         });
     }
+
+    async processCharacterImage(token: string): Promise<any> {
+        return this.makeRequest<any>('/upload/process', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
+    }
 } 

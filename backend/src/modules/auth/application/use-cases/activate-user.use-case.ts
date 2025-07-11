@@ -5,12 +5,14 @@ import {
   ActivateUserOutput,
 } from '../dtos/activate-user.dto';
 import { USER_REPOSITORY } from '../../domain/tokens/injection-tokens';
+import { JwtAuthService } from '../../infrastructure/services/jwt-auth.service';
 
 @Injectable()
 export class ActivateUserUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
-    private readonly userRepository: IUserRepository
+    private readonly userRepository: IUserRepository,
+    private readonly jwtAuthService: JwtAuthService
   ) {}
 
   async execute(input: ActivateUserInput): Promise<ActivateUserOutput> {
@@ -44,10 +46,22 @@ export class ActivateUserUseCase {
       // 4. Salvar alterações
       await this.userRepository.update(user);
 
+      // 5. Gerar token JWT automaticamente após ativação
+      const token = this.jwtAuthService.generateToken(user);
+
+      // 6. Retornar sucesso com token e dados do usuário
       return new ActivateUserOutput(
         true,
-        'User activated successfully. You can now complete your profile.',
-        undefined
+        'User activated successfully. You are now logged in.',
+        undefined,
+        token,
+        {
+          id: user.getId(),
+          name: user.getName(),
+          email: user.getEmail(),
+          phone: user.getPhone(),
+          status: user.getStatus(),
+        }
       );
     } catch (error) {
       return new ActivateUserOutput(

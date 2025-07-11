@@ -65,7 +65,13 @@ npm run lint
 # 4. Rodar build (deve retornar ZERO erros)
 npm run build
 
-# 5. Rodar desenvolvimento
+# 5. Rodar testes (TODOS devem passar)
+npm run test
+
+# 6. Verificar cobertura de testes (mínimo 80%)
+npm run test:coverage
+
+# 7. Rodar desenvolvimento
 npm run dev
 ```
 
@@ -74,6 +80,7 @@ npm run dev
 ✅ **Commit inicial realizado com sucesso**
 ✅ **Estrutura do monorepo configurada**
 ✅ **Regras de qualidade atualizadas**
+✅ **Política de testes implementada**
 ⚠️ **Node.js precisa ser configurado corretamente**
 
 ## Próximos Passos

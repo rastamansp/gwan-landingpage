@@ -15,7 +15,9 @@ export class User {
     private updatedAt: Date,
     private activationCode?: string,
     private activationCodeExpiresAt?: Date,
-    private profileImageUrl?: string
+    private profileImageUrl?: string,
+    private loginCode?: string,
+    private loginCodeExpiresAt?: Date
   ) {
     this.validateEmail(email);
     this.validatePhone(phone);
@@ -79,6 +81,31 @@ export class User {
 
     this.profileImageUrl = imageUrl;
     this.status = UserStatus.COMPLETED;
+    this.updatedAt = new Date();
+  }
+
+  // Métodos de login
+  setLoginCode(loginCode: string): void {
+    this.loginCode = loginCode;
+    this.updatedAt = new Date();
+  }
+
+  setLoginCodeExpiresAt(expiresAt: Date): void {
+    this.loginCodeExpiresAt = expiresAt;
+    this.updatedAt = new Date();
+  }
+
+  getLoginCode(): string | undefined {
+    return this.loginCode;
+  }
+
+  getLoginCodeExpiresAt(): Date | undefined {
+    return this.loginCodeExpiresAt;
+  }
+
+  clearLoginCode(): void {
+    this.loginCode = undefined;
+    this.loginCodeExpiresAt = undefined;
     this.updatedAt = new Date();
   }
 

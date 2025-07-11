@@ -413,11 +413,22 @@ export class CreateContactUseCase {
 
 ## Regras de Qualidade e Validação
 
-### Obrigatoriedade de Lint e Build
+### Obrigatoriedade de Lint, Build e Testes
 - **ANTES DE CADA COMMIT**: Execute `npm run lint` e garanta ZERO erros
 - **ANTES DE CADA PUSH**: Execute `npm run build` e garanta ZERO erros
+- **ANTES DE CADA PUSH**: Execute `npm run test` e garanta TODOS os testes passando
 - **ANTES DE CADA MERGE**: Execute `npm run test` e garanta todos os testes passando
 - **SEMPRE**: Valide se o projeto roda com `npm run dev` antes de commitar
+
+### Importância dos Testes Unitários
+- **TESTES SÃO OBRIGATÓRIOS**: Nunca suba código sem testes passando
+- **COBERTURA MÍNIMA**: Mantenha cobertura de testes acima de 80%
+- **TESTES ANTES DE COMMIT**: Execute testes antes de cada commit
+- **TESTES ANTES DE PUSH**: Execute testes antes de cada push
+- **TESTES ANTES DE MERGE**: Execute testes antes de cada merge
+- **TESTES QUEBRADOS = BUG**: Se testes quebram, corrija antes de continuar
+- **TESTES COMO DOCUMENTAÇÃO**: Testes devem documentar comportamento esperado
+- **TESTES COMO REFATORAÇÃO**: Use testes para validar refatorações
 
 ### Checklist de Qualidade
 
@@ -427,7 +438,8 @@ Antes de commitar:
 - [ ] **LINT**: `npm run lint` sem erros
 - [ ] **BUILD**: `npm run build` sem erros
 - [ ] **DEV**: `npm run dev` roda sem problemas
-- [ ] Testes passando
+- [ ] **TESTES**: `npm run test` - TODOS os testes passando
+- [ ] **COBERTURA**: Cobertura de testes acima de 80%
 - [ ] Documentação atualizada
 - [ ] Performance aceitável
 - [ ] Segurança implementada
@@ -438,10 +450,16 @@ Antes de commitar:
 # Antes de cada commit
 npm run lint          # Deve retornar ZERO erros
 npm run build         # Deve retornar ZERO erros
+npm run test          # TODOS os testes devem passar
 npm run dev           # Deve rodar sem problemas
 
 # Antes de cada push
 npm run test          # Todos os testes devem passar
+npm run test:coverage # Verificar cobertura de testes
+
+# Antes de cada merge
+npm run test          # Todos os testes devem passar
+npm run test:coverage # Verificar cobertura de testes
 ```
 
 ### Regras de Commit

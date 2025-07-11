@@ -1,40 +1,25 @@
 // API Constants
 
 export const API_ENDPOINTS = {
-    // Auth
-    AUTH: {
-        LOGIN: '/auth/login',
-        REGISTER: '/auth/register',
-        REFRESH: '/auth/refresh',
-        LOGOUT: '/auth/logout',
-        PROFILE: '/auth/profile',
-    },
+  // Auth
+  AUTH: {
+    LOGIN_REQUEST: '/auth/login-request',
+    LOGIN_VALIDATE: '/auth/login-validate',
+    REGISTER: '/auth/register',
+    ACTIVATE: '/auth/activate',
+    ME: '/auth/me',
+  },
 
-    // Contact
-    CONTACT: {
-        CREATE: '/contact',
-        GET_ALL: '/contact',
-        GET_BY_ID: '/contact/:id',
-        UPDATE: '/contact/:id',
-        DELETE: '/contact/:id',
-    },
+  // Upload
+  UPLOAD: {
+    UPLOAD_IMAGE: '/upload',
+  },
 
-    // Portfolio
-    PORTFOLIO: {
-        GET_ALL: '/portfolio',
-        GET_BY_ID: '/portfolio/:id',
-        CREATE: '/portfolio',
-        UPDATE: '/portfolio/:id',
-        DELETE: '/portfolio/:id',
-    },
-
-    // Health
-    HEALTH: {
-        CHECK: '/health',
-        READY: '/health/ready',
-        LIVE: '/health/live',
-    },
-} as const;
+  // Health
+  HEALTH: {
+    CHECK: '/health',
+  },
+};
 
 export const HTTP_STATUS = {
     OK: 200,
