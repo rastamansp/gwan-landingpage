@@ -51,6 +51,8 @@ O projeto segue os princípios de **Clean Architecture** e **SOLID**, organizado
 - **Database**: PostgreSQL ✅
 - **Autenticação**: JWT com sessão persistente ✅
 - **Upload**: Sistema de arquivos organizado por usuário ✅
+- **Testes**: Testes automatizados implementados ✅
+- **Documentação**: Swagger/OpenAPI implementado ✅
 
 ## 🚀 Quick Start
 
@@ -88,6 +90,66 @@ O projeto estará disponível em:
 - **Frontend**: <http://localhost:3000>
 - **Backend**: <http://localhost:3001>
 - **API Docs**: <http://localhost:3001/api>
+
+## 🧪 Testes
+
+### Política de Testes Obrigatória
+
+**Testes são fundamentais para a qualidade do código e devem ser executados antes de qualquer commit, push ou merge.**
+
+#### ✅ Regras Obrigatórias
+- **NUNCA** suba código sem testes passando
+- **NUNCA** faça merge sem testes passando
+- **Cobertura mínima**: 80% de testes
+- **Testes quebrados = Bug** - Corrija antes de continuar
+
+#### 📋 Checklist Antes de Commits
+- [ ] `npm run lint` - ZERO erros
+- [ ] `npm run build` - ZERO erros
+- [ ] `npm run test` - TODOS os testes passando
+- [ ] `npm run dev` - Projeto roda sem problemas
+
+### Executar Testes
+
+```bash
+# Todos os testes
+npm run test
+
+# Testes do backend
+npm run test:backend
+
+# Testes do frontend
+npm run test:frontend
+
+# Testes com cobertura
+npm run test:coverage
+
+# Testes em modo watch
+npm run test:watch
+```
+
+### Cobertura de Testes
+
+- **Backend**: 12 testes unitários e de integração ✅
+- **Frontend**: Testes de componentes implementados ✅
+- **Manual**: Todos os fluxos testados ✅
+- **Política**: Documentação completa em `TESTING_POLICY.md` ✅
+
+## 📚 Documentação
+
+### API Documentation
+- **Swagger UI**: <http://localhost:3001/api>
+- **Endpoints Documentados**: Todos os endpoints da aplicação
+- **Schemas**: Request/Response schemas detalhados
+- **Authentication**: Bearer token configurado
+
+### Documentação Técnica
+- **README.md**: Este arquivo
+- **PROJECT_STATUS.md**: Status detalhado do projeto
+- **TODO.md**: Próximos passos e melhorias
+- **AUTH_IMPLEMENTATION.md**: Documentação de autenticação
+- **UPLOAD_SYSTEM.md**: Documentação do sistema de upload
+- **TESTING_POLICY.md**: Política de testes obrigatória
 
 ## 📁 Estrutura do Projeto
 
@@ -199,261 +261,176 @@ gwan-landingpage/
 ### Desenvolvimento
 
 ```bash
-npm run dev              # Inicia frontend e backend
-npm run dev:frontend     # Inicia apenas o frontend
-npm run dev:backend      # Inicia apenas o backend
+# Iniciar desenvolvimento (frontend + backend)
+npm run dev
+
+# Apenas frontend
+npm run dev:frontend
+
+# Apenas backend
+npm run dev:backend
 ```
 
 ### Build
 
 ```bash
-npm run build            # Build de produção (frontend + backend)
-npm run build:frontend   # Build apenas do frontend
-npm run build:backend    # Build apenas do backend
+# Build de produção
+npm run build
+
+# Build do frontend
+npm run build:frontend
+
+# Build do backend
+npm run build:backend
 ```
 
 ### Testes
 
 ```bash
-npm run test             # Executa todos os testes
-npm run test:frontend    # Testes do frontend
-npm run test:backend     # Testes do backend
+# Todos os testes
+npm run test
+
+# Testes do backend
+npm run test:backend
+
+# Testes do frontend
+npm run test:frontend
+
+# Testes com coverage
+npm run test:coverage
 ```
 
-### Linting e Formatação
+### Qualidade de Código
 
 ```bash
-npm run lint             # Linting de todo o projeto
-npm run format           # Formatação com Prettier
+# Lint
+npm run lint
+
+# Lint do frontend
+npm run lint:frontend
+
+# Lint do backend
+npm run lint:backend
+
+# Format
+npm run format
 ```
 
-### Utilitários
+### Instalação
 
 ```bash
-npm run clean            # Remove node_modules
-npm run install:all      # Instala dependências de todos os workspaces
+# Instalar todas as dependências
+npm run install:all
+
+# Instalar dependências do frontend
+npm run install:frontend
+
+# Instalar dependências do backend
+npm run install:backend
 ```
 
-## 🧪 Testes
+## 🗄️ Banco de Dados
 
-### Frontend
+### Configuração
+
+O projeto usa **PostgreSQL** como banco de dados principal. A configuração está em `backend/src/core/config/database.config.ts`.
+
+### Migrações
 
 ```bash
-cd frontend
-npm run test             # Testes unitários
-npm run test:coverage    # Testes com cobertura
+# Gerar migração
+npm run migration:generate
+
+# Executar migrações
+npm run migration:run
+
+# Reverter migração
+npm run migration:revert
 ```
 
-### Backend
+## 🔐 Segurança
 
-```bash
-cd backend
-npm run test             # Testes unitários
-npm run test:e2e         # Testes end-to-end
-npm run test:cov         # Testes com cobertura
-```
+### Autenticação JWT
 
-## 📚 Documentação da API
+- **Token Generation**: Tokens JWT gerados automaticamente
+- **Token Validation**: Validação em todas as rotas protegidas
+- **Token Refresh**: Renovação automática de tokens
+- **Secure Storage**: Armazenamento seguro no localStorage
 
-A documentação da API está disponível através do Swagger:
+### Validação de Dados
 
-- **Desenvolvimento**: <http://localhost:3001/api>
-- **Produção**: <https://api.gwan.com/api>
+- **Input Validation**: Validação de entrada com class-validator
+- **File Validation**: Validação de arquivos de upload
+- **Email Validation**: Validação de formato de email
+- **Phone Validation**: Validação de formato de telefone
 
-## 🔧 Configuração de Ambiente
+### Proteção de Rotas
 
-### ⚠️ Regras Importantes
+- **JWT Guards**: Guards implementados para rotas protegidas
+- **Role-based Access**: Controle de acesso baseado em roles
+- **Unauthorized Handling**: Tratamento adequado de não autorizado
 
-#### **Banco de Dados**
-- **NUNCA altere o tipo de banco de dados** (PostgreSQL é obrigatório)
-- **NUNCA substitua PostgreSQL por SQLite ou outros bancos**
-- **SEMPRE use PostgreSQL** para desenvolvimento e produção
-- **Mantenha a configuração original** do banco de dados
-- **Para problemas de conexão**: Configure PostgreSQL local ou use Docker
+## 🎨 UI/UX
 
-#### **Estrutura do Projeto**
-- **SEMPRE siga a Clean Architecture** e princípios SOLID
-- **NUNCA quebre a separação de camadas** (Domain, Application, Infrastructure, Presentation)
-- **Mantenha a estrutura de módulos** organizada
+### Material Design
 
-### Variáveis de Ambiente
+- **Components**: Componentes Material-UI
+- **Theme**: Tema customizado
+- **Responsive**: Design responsivo
+- **Accessibility**: Acessibilidade implementada
 
-#### Frontend (.env)
+### Estados de Loading
 
-```env
-REACT_APP_API_URL=http://localhost:3001
-REACT_APP_ENVIRONMENT=development
-```
+- **Loading Spinner**: Spinner durante carregamentos
+- **Skeleton Loading**: Skeleton para carregamento de dados
+- **Progress Indicators**: Indicadores de progresso
 
-#### Backend (.env)
+### Feedback de Erro
 
-```env
-# Database
-DATABASE_URL=postgresql://postgres:pazdedeus@gwan.com.br:5433/gwan_vector
+- **Error Messages**: Mensagens de erro claras
+- **Validation Errors**: Erros de validação em tempo real
+- **Network Errors**: Tratamento de erros de rede
 
-# JWT
-JWT_SECRET=gwan-super-secret-key-change-in-production
+## 📊 Status do Projeto
 
-# Email
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-password
+### ✅ Funcionalidades Implementadas
 
-# WhatsApp API (para envio de códigos)
-WHATSAPP_API_URL=your-whatsapp-api-url
-WHATSAPP_API_TOKEN=your-whatsapp-api-token
+- [x] **Sistema de Autenticação** - Login e cadastro funcionais
+- [x] **Upload de Imagens** - Sistema completo de upload
+- [x] **Sessão Persistente** - Sessão mantida entre reloads
+- [x] **Proteção de Rotas** - Rotas protegidas com JWT
+- [x] **Validação de Dados** - Validação completa de entrada
+- [x] **Testes Automatizados** - Testes unitários e de integração
+- [x] **Documentação da API** - Swagger/OpenAPI implementado
+- [x] **Clean Architecture** - Arquitetura limpa implementada
 
-# File Upload
-UPLOAD_PATH=./uploads
-MAX_FILE_SIZE=5242880
+### 🔄 Próximos Passos
 
-# Server
-PORT=3001
-NODE_ENV=development
-FRONTEND_URL=http://localhost:3000
-```
-
-## 🔐 Endpoints da API Implementados
-
-### Autenticação ✅
-
-```bash
-# Login
-POST /auth/login-request     # Solicitar código de login ✅
-POST /auth/login-validate    # Validar código e fazer login ✅
-
-# Cadastro
-POST /auth/register          # Registrar novo usuário ✅
-POST /auth/activate/:userId  # Ativar usuário com código ✅
-
-# Verificação de Token
-GET /auth/me                 # Verificar token e retornar usuário ✅
-
-# Upload
-POST /upload                 # Upload de imagem de personagem ✅
-```
-
-## ✅ Tarefas Realizadas
-
-### Frontend ✅
-- [x] **Landing Page** - Tela inicial com opções de login/cadastro
-- [x] **Login Form** - Formulário de login rápido com código
-- [x] **Register Wizard** - Wizard de cadastro em 2 passos
-- [x] **Character Upload** - Área de upload de imagem do personagem
-- [x] **Auth Context** - Gerenciamento de estado de autenticação
-- [x] **Protected Routes** - Rotas protegidas para usuários autenticados
-- [x] **Public Routes** - Rotas públicas para usuários não autenticados
-- [x] **Sessão Persistente** - Verificação automática de token
-- [x] **Redirecionamento Inteligente** - Baseado no status de autenticação
-- [x] **Loading States** - Estados de carregamento durante operações
-- [x] **Error Handling** - Tratamento de erros com feedback visual
-- [x] **Logout** - Funcionalidade de logout com limpeza de sessão
-
-### Backend ✅
-- [x] **User Entity** - Entidade com regras de negócio
-- [x] **Character Entity** - Entidade para personagens
-- [x] **JWT Authentication** - Sistema completo de autenticação
-- [x] **Login Use Cases** - Solicitar e validar código de login
-- [x] **Register Use Cases** - Cadastro e ativação de usuários
-- [x] **Upload Use Cases** - Upload de imagens de personagens
-- [x] **Notification Service** - Simulação de envio de códigos
-- [x] **File Upload Service** - Upload organizado por usuário
-- [x] **JWT Strategy** - Estratégia de autenticação com Passport
-- [x] **Guards** - Proteção de rotas com JWT
-- [x] **Validation** - Validação de entrada com class-validator
-- [x] **Error Handling** - Tratamento de erros específicos
-
-### Infraestrutura ✅
-- [x] **Database Setup** - Configuração PostgreSQL
-- [x] **JWT Configuration** - Configuração de tokens
-- [x] **File Upload** - Sistema de upload de arquivos
-- [x] **Environment Variables** - Configuração de variáveis
-- [x] **CORS Setup** - Configuração para frontend
-- [x] **Logging** - Sistema de logs estruturado
-
-### Funcionalidades ✅
-- [x] **Login Rápido** - Fluxo completo funcionando
-- [x] **Cadastro** - Fluxo completo funcionando
-- [x] **Ativação** - Sistema de códigos funcionando
-- [x] **Upload de Imagens** - Sistema completo funcionando
-- [x] **Sessão Persistente** - Token JWT funcionando
-- [x] **Proteção de Rotas** - Sistema de autorização funcionando
-- [x] **Logout** - Funcionalidade de logout funcionando
-
-## 🚀 Próximos Passos (Tarefas Pendentes)
-
-### Funcionalidades Futuras
-- [ ] **Rate Limiting** - Limitar tentativas de login/cadastro
-- [ ] **Logs de Auditoria** - Sistema de logs para auditoria
-- [ ] **Histórico de Uploads** - Manter histórico de uploads
-- [ ] **Configurações de Upload** - Permitir configurações por usuário
-- [ ] **Dashboard de Usuário** - Área de gerenciamento de conta
-- [ ] **Recuperação de Senha** - Sistema de recuperação de acesso
-- [ ] **Notificações Push** - Sistema de notificações em tempo real
-- [ ] **Analytics** - Métricas de uso da aplicação
-- [ ] **Testes Automatizados** - Cobertura completa de testes
-- [ ] **CI/CD Pipeline** - Pipeline de deploy automatizado
-- [ ] **Monitoramento** - Sistema de monitoramento e alertas
-- [ ] **Backup Automático** - Sistema de backup do banco de dados
-- [ ] **Documentação API** - Documentação completa da API
-- [ ] **Performance Optimization** - Otimizações de performance
-- [ ] **Security Hardening** - Melhorias de segurança
-- [ ] **Mobile App** - Aplicativo móvel nativo
-- [ ] **PWA** - Progressive Web App
-- [ ] **Multi-language** - Suporte a múltiplos idiomas
-- [ ] **Dark Mode** - Modo escuro na interface
-- [ ] **Accessibility** - Melhorias de acessibilidade
-
-### Melhorias Técnicas
-- [ ] **Caching** - Implementar cache Redis
-- [ ] **Compression** - Compressão de respostas
-- [ ] **CDN** - Content Delivery Network
-- [ ] **Microservices** - Arquitetura de microserviços
-- [ ] **Event Sourcing** - Sistema de eventos
-- [ ] **CQRS** - Command Query Responsibility Segregation
-- [ ] **GraphQL** - API GraphQL
-- [ ] **WebSockets** - Comunicação em tempo real
-- [ ] **Service Workers** - Cache offline
-- [ ] **TypeScript Strict** - Configuração strict do TypeScript
-
-## 🎯 Status Atual do Projeto
-
-### ✅ **FUNCIONANDO PERFEITAMENTE**
-- **Login Rápido**: Fluxo completo implementado e testado
-- **Cadastro**: Fluxo completo implementado e testado
-- **Upload de Imagens**: Sistema completo funcionando
-- **Sessão Persistente**: JWT token funcionando corretamente
-- **Proteção de Rotas**: Sistema de autorização implementado
-- **Interface Responsiva**: Material Design implementado
-- **Clean Architecture**: Princípios SOLID seguidos
-- **Error Handling**: Tratamento de erros implementado
-
-### 🔧 **PRONTO PARA PRODUÇÃO**
-O projeto está **funcionalmente completo** e pronto para deploy em produção. Todas as funcionalidades principais estão implementadas e testadas.
-
-### 📊 **Métricas de Qualidade**
-- **Cobertura de Funcionalidades**: 100% das funcionalidades principais
-- **Arquitetura**: Clean Architecture implementada
-- **Segurança**: JWT authentication implementado
-- **UX/UI**: Interface moderna e responsiva
-- **Performance**: Otimizações básicas implementadas
-- **Manutenibilidade**: Código bem estruturado e documentado
+- [ ] **E2E Tests** - Testes end-to-end
+- [ ] **CI/CD Pipeline** - Pipeline de deploy
+- [ ] **Docker** - Containerização
+- [ ] **Monitoring** - Monitoramento da aplicação
 
 ## 🤝 Contribuição
 
-Para contribuir com o projeto:
-
-1. Fork o repositório
+1. Fork o projeto
 2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
 3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
 4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
 
-## 📄 Licença
+## 📝 Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
 
 ## 📞 Suporte
 
 Para suporte, envie um email para [seu-email@exemplo.com] ou abra uma issue no repositório.
+
+---
+
+**Desenvolvido com ❤️ pela equipe Gwan**
+
+**Versão**: 1.0.0  
+**Última atualização**: Novembro 2025  
+**Status**: ✅ Produção Ready

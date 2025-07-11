@@ -15,6 +15,7 @@ import { ActivateUserUseCase } from './application/use-cases/activate-user.use-c
 import { LoginRequestUseCase } from './application/use-cases/login-request.use-case';
 import { LoginValidateUseCase } from './application/use-cases/login-validate.use-case';
 import { UploadCharacterImageUseCase } from './application/use-cases/upload-character-image.use-case';
+import { ProcessCharacterImageUseCase } from './application/use-cases/process-character-image.use-case';
 
 // Repositories
 import { UserRepository } from './infrastructure/repositories/user.repository';
@@ -25,6 +26,7 @@ import { CharacterEntity } from './infrastructure/entities/character.entity';
 // Services
 import { NotificationService } from './infrastructure/services/notification.service';
 import { FileUploadService } from './infrastructure/services/file-upload.service';
+import { ExternalApiService } from './infrastructure/services/external-api.service';
 import { JwtAuthService } from './infrastructure/services/jwt-auth.service';
 
 // Strategies
@@ -39,6 +41,7 @@ import {
   CHARACTER_REPOSITORY,
   NOTIFICATION_SERVICE,
   FILE_UPLOAD_SERVICE,
+  EXTERNAL_API_SERVICE,
 } from './domain/tokens/injection-tokens';
 
 // Config
@@ -62,6 +65,7 @@ import { jwtConfig } from '../../core/config/jwt.config';
     LoginRequestUseCase,
     LoginValidateUseCase,
     UploadCharacterImageUseCase,
+    ProcessCharacterImageUseCase,
 
     // Repositories
     {
@@ -82,6 +86,10 @@ import { jwtConfig } from '../../core/config/jwt.config';
       provide: FILE_UPLOAD_SERVICE,
       useClass: FileUploadService,
     },
+    {
+      provide: EXTERNAL_API_SERVICE,
+      useClass: ExternalApiService,
+    },
     JwtAuthService,
 
     // Strategies
@@ -96,6 +104,7 @@ import { jwtConfig } from '../../core/config/jwt.config';
     LoginRequestUseCase,
     LoginValidateUseCase,
     UploadCharacterImageUseCase,
+    ProcessCharacterImageUseCase,
     JwtAuthService,
   ],
 })

@@ -12,9 +12,11 @@ import {
   AppBar,
   Toolbar,
 } from '@mui/material';
-import { CloudUpload, CheckCircle, Logout } from '@mui/icons-material';
+import { CloudUpload, CheckCircle, Logout, Psychology } from '@mui/icons-material';
 import { useAuth } from '../../infrastructure/context/auth-context';
 import { useNavigate } from 'react-router-dom';
+import { ProcessCharacterImageUseCase } from '../../application/use-cases/process-character-image.use-case';
+import { AuthApiService } from '../../infrastructure/services/auth-api.service';
 
 interface CharacterUploadProps {
   onUploadSuccess?: (imageUrl: string) => void;
@@ -29,6 +31,8 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [processedData, setProcessedData] = useState<any>(null);
 
   const handleLogout = () => {
     logout();
@@ -102,6 +106,32 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
     setUploadedImageUrl(null);
     setError(null);
     setSuccess(false);
+    setProcessedData(null);
+  };
+
+  const handleProcessImage = async () => {
+    if (!token) return;
+
+    setProcessing(true);
+    setError(null);
+
+    try {
+      const authApiService = new AuthApiService();
+      const processCharacterImageUseCase = new ProcessCharacterImageUseCase(authApiService);
+      
+      const result = await processCharacterImageUseCase.execute({ token });
+
+      if (result.success) {
+        setProcessedData(result.processedData);
+        setSuccess(true);
+      } else {
+        setError(result.error || 'Erro ao processar imagem');
+      }
+    } catch (error) {
+      setError('Erro ao conectar com o servidor');
+    } finally {
+      setProcessing(false);
+    }
   };
 
   return (
@@ -171,9 +201,81 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
                   mb: 2
                 }}
               />
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 URL: {uploadedImageUrl}
               </Typography>
+              
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleProcessImage}
+                disabled={processing}
+                startIcon={processing ? <CircularProgress size={20} /> : <Psychology />}
+                sx={{ mb: 2 }}
+              >
+                {processing ? 'Processando...' : 'Processar Imagem'}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {processedData && (
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Dados Processados
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Processado em: {processedData.processedAt}
+              </Typography>
+              
+              {processedData.analysis && (
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Análise
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Confiança: {(processedData.analysis.confidence * 100).toFixed(1)}%
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Recursos: {processedData.analysis.features.join(', ')}
+                  </Typography>
+                </Box>
+              )}
+              
+              {processedData.results && (
+                <Box>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Resultados
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Tipo: {processedData.results.characterType}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Pose: {processedData.results.pose}
+                  </Typography>
+                  
+                  {processedData.results.attributes && (
+                    <Box sx={{ mt: 1 }}>
+                      <Typography variant="subtitle2" gutterBottom>
+                        Atributos
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Força: {processedData.results.attributes.strength}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Agilidade: {processedData.results.attributes.agility}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Inteligência: {processedData.results.attributes.intelligence}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Carisma: {processedData.results.attributes.charisma}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+              )}
             </CardContent>
           </Card>
         )}

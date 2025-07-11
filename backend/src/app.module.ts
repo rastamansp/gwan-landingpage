@@ -4,8 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 // Módulos da aplicação
 import { AuthModule } from '@/modules/auth/auth.module';
-import { ContactModule } from '@/modules/contact/contact.module';
-import { PortfolioModule } from '@/modules/portfolio/portfolio.module';
+import { HealthController } from './modules/health.controller';
 
 // Configurações
 import { databaseConfig } from '@/core/config/database.config';
@@ -23,8 +22,7 @@ import { databaseConfig } from '@/core/config/database.config';
 
     // Módulos da aplicação
     AuthModule,
-    ContactModule,
-    PortfolioModule,
   ],
+  controllers: [HealthController],
 })
 export class AppModule {}

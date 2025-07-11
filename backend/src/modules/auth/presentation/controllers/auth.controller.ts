@@ -8,6 +8,13 @@ import {
   Get,
   UseGuards,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { RegisterUserUseCase } from '../../application/use-cases/register-user.use-case';
 import { ActivateUserUseCase } from '../../application/use-cases/activate-user.use-case';
 import { LoginRequestUseCase } from '../../application/use-cases/login-request.use-case';
@@ -38,6 +45,7 @@ export class ActivateUserDto {
   activationCode: string;
 }
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
@@ -50,6 +58,31 @@ export class AuthController {
   ) {}
 
   @Post('login-request')
+  @ApiOperation({ summary: 'Solicitar código de login' })
+  @ApiBody({ type: LoginRequestDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Código enviado com sucesso',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: true },
+        message: { type: 'string', example: 'Código enviado com sucesso' },
+        loginCode: { type: 'string', example: '123456' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Erro na solicitação',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: false },
+        message: { type: 'string', example: 'Contato não encontrado' },
+      },
+    },
+  })
   async loginRequest(@Body() dto: LoginRequestDto) {
     this.logger.log(`Login request for contact: ${dto.contact}`);
 
@@ -68,6 +101,42 @@ export class AuthController {
   }
 
   @Post('login-validate')
+  @ApiOperation({ summary: 'Validar código de login' })
+  @ApiBody({ type: LoginValidateDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Login realizado com sucesso',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: true },
+        message: { type: 'string', example: 'Login realizado com sucesso' },
+        userId: { type: 'string', example: 'user_123' },
+        token: { type: 'string', example: 'jwt-token' },
+        userData: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', example: 'user_123' },
+            name: { type: 'string', example: 'John Doe' },
+            email: { type: 'string', example: 'john@example.com' },
+            phone: { type: 'string', example: '+5511999999999' },
+            status: { type: 'string', example: 'ACTIVE' },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Código inválido',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: false },
+        message: { type: 'string', example: 'Código inválido' },
+      },
+    },
+  })
   async loginValidate(@Body() dto: LoginValidateDto) {
     this.logger.log(`Login validation for contact: ${dto.contact}`);
 
@@ -89,6 +158,31 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Obter dados do usuário atual' })
+  @ApiResponse({
+    status: 200,
+    description: 'Dados do usuário',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: true },
+        user: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', example: 'user_123' },
+            email: { type: 'string', example: 'john@example.com' },
+            name: { type: 'string', example: 'John Doe' },
+            status: { type: 'string', example: 'ACTIVE' },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Não autorizado',
+  })
   async getCurrentUser(@CurrentUser() user: any) {
     return {
       success: true,
@@ -102,6 +196,32 @@ export class AuthController {
   }
 
   @Post('register')
+  @ApiOperation({ summary: 'Registrar novo usuário' })
+  @ApiBody({ type: RegisterUserDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Usuário registrado com sucesso',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: true },
+        userId: { type: 'string', example: 'user_123' },
+        message: { type: 'string', example: 'Usuário registrado com sucesso' },
+        activationCode: { type: 'string', example: '123456' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Erro no registro',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: false },
+        message: { type: 'string', example: 'Email já cadastrado' },
+      },
+    },
+  })
   async register(@Body() dto: RegisterUserDto) {
     this.logger.log(`Registering user: ${dto.email}`);
 
@@ -121,6 +241,41 @@ export class AuthController {
   }
 
   @Post('activate/:userId')
+  @ApiOperation({ summary: 'Ativar usuário' })
+  @ApiBody({ type: ActivateUserDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Usuário ativado com sucesso',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: true },
+        message: { type: 'string', example: 'Usuário ativado com sucesso' },
+        token: { type: 'string', example: 'jwt-token' },
+        userData: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', example: 'user_123' },
+            name: { type: 'string', example: 'John Doe' },
+            email: { type: 'string', example: 'john@example.com' },
+            phone: { type: 'string', example: '+5511999999999' },
+            status: { type: 'string', example: 'ACTIVE' },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Código de ativação inválido',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: false },
+        message: { type: 'string', example: 'Código de ativação inválido' },
+      },
+    },
+  })
   async activate(
     @Param('userId') userId: string,
     @Body() dto: ActivateUserDto
