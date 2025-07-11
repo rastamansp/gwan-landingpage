@@ -3,7 +3,7 @@ export class RegisterUserInput {
     public readonly name: string,
     public readonly email: string,
     public readonly phone: string
-  ) { }
+  ) {}
 }
 
 export class RegisterUserOutput {
@@ -13,5 +13,5 @@ export class RegisterUserOutput {
     public readonly message?: string,
     public readonly error?: string,
     public readonly activationCode?: string
-  ) { }
+  ) {}
 }

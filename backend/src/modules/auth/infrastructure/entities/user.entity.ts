@@ -36,6 +36,12 @@ export class UserEntity {
   @Column({ nullable: true })
   profileImageUrl?: string;
 
+  @Column({ nullable: true })
+  loginCode?: string;
+
+  @Column({ nullable: true })
+  loginCodeExpiresAt?: Date;
+
   @CreateDateColumn()
   createdAt: Date;
 

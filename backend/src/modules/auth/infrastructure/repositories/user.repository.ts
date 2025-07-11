@@ -32,6 +32,17 @@ export class UserRepository implements IUserRepository {
     return userEntity ? this.mapToDomain(userEntity) : null;
   }
 
+  async findByContact(contact: string): Promise<User | null> {
+    // Verifica se é email ou telefone
+    const isEmail = contact.includes('@');
+
+    if (isEmail) {
+      return this.findByEmail(contact);
+    } else {
+      return this.findByPhone(contact);
+    }
+  }
+
   async update(user: User): Promise<void> {
     const userEntity = this.mapToEntity(user);
     await this.repository.save(userEntity);
@@ -51,6 +62,8 @@ export class UserRepository implements IUserRepository {
     entity.activationCode = user.getActivationCode();
     entity.activationCodeExpiresAt = user.getActivationCodeExpiresAt();
     entity.profileImageUrl = user.getProfileImageUrl();
+    entity.loginCode = user.getLoginCode();
+    entity.loginCodeExpiresAt = user.getLoginCodeExpiresAt();
     entity.createdAt = user.getCreatedAt();
     entity.updatedAt = user.getUpdatedAt();
     return entity;
@@ -67,7 +80,9 @@ export class UserRepository implements IUserRepository {
       entity.updatedAt,
       entity.activationCode,
       entity.activationCodeExpiresAt,
-      entity.profileImageUrl
+      entity.profileImageUrl,
+      entity.loginCode,
+      entity.loginCodeExpiresAt
     );
   }
 }
