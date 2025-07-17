@@ -394,6 +394,197 @@ export class CreateContactUseCase {
 - Documente todos os endpoints
 - Inclua exemplos de request/response
 
+## 🔧 Padrões de API REST Obrigatórios
+
+### Estrutura Padrão de Resposta
+
+**TODAS as APIs devem seguir estes padrões obrigatórios:**
+
+#### Sucesso (200)
+```json
+{
+  "success": true,
+  "message": "Operação realizada com sucesso",
+  "data": {
+    // Dados específicos da operação
+  }
+}
+```
+
+#### Erro (400, 401, 403, 404, 500)
+```json
+{
+  "success": false,
+  "message": "Descrição do erro",
+  "error": "Código do erro (opcional)"
+}
+```
+
+### Campos Padronizados Obrigatórios
+
+#### Usuário
+- **SEMPRE** usar `user` (não `userData`, `userInfo`, etc.)
+- **Estrutura consistente**:
+```json
+{
+  "id": "string",
+  "name": "string", 
+  "email": "string",
+  "phone": "string",
+  "status": "string"
+}
+```
+
+#### Autenticação
+- **SEMPRE** usar `token` (não `jwt`, `accessToken`, etc.)
+- **SEMPRE** usar `userId` (não `id`, `user_id`, etc.)
+- **SEMPRE** usar `activationCode` e `loginCode`
+
+#### Upload
+- **SEMPRE** usar `imageUrl` (não `url`, `image_url`, etc.)
+
+### Status Codes HTTP Padronizados
+
+- **200**: Sucesso
+- **201**: Criado com sucesso  
+- **400**: Erro de validação/requisição
+- **401**: Não autorizado
+- **403**: Acesso negado
+- **404**: Recurso não encontrado
+- **500**: Erro interno do servidor
+
+### Validação de Entrada Padronizada
+
+#### DTOs Padronizados
+```typescript
+export class RegisterUserDto {
+  @IsString()
+  name: string;
+
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  phone: string;
+}
+```
+
+#### Validação de Arquivos
+```typescript
+export class UploadFileDto {
+  @IsFile()
+  @MaxFileSize(20 * 1024 * 1024) // 20MB
+  @FileType(['image/jpeg', 'image/png', 'image/gif'])
+  file: Express.Multer.File;
+}
+```
+
+### Documentação Swagger Padronizada
+
+```typescript
+@ApiOperation({ summary: 'Descrição da operação' })
+@ApiResponse({
+  status: 200,
+  description: 'Sucesso',
+  schema: {
+    type: 'object',
+    properties: {
+      success: { type: 'boolean', example: true },
+      message: { type: 'string', example: 'Operação realizada' },
+      // outros campos...
+    },
+  },
+})
+@ApiResponse({
+  status: 400,
+  description: 'Erro de validação',
+  schema: {
+    type: 'object',
+    properties: {
+      success: { type: 'boolean', example: false },
+      message: { type: 'string', example: 'Erro de validação' },
+    },
+  },
+})
+```
+
+### Logs Padronizados
+
+```typescript
+this.logger.log(`Operação para usuário: ${userId}`);
+this.logger.error(`Erro na operação: ${error.message}`);
+```
+
+### Segurança Padronizada
+
+#### Headers Obrigatórios
+- **Authorization**: `Bearer <token>` para rotas protegidas
+- **Content-Type**: `application/json` para JSON
+- **Content-Type**: `multipart/form-data` para uploads
+
+#### Validação de Token
+- **SEMPRE** validar token em rotas protegidas
+- **SEMPRE** retornar 401 para tokens inválidos
+- **SEMPRE** incluir informações do usuário no token JWT
+
+### Performance Padronizada
+
+#### Cache
+- **SEMPRE** usar cache para dados frequentemente acessados
+- **SEMPRE** invalidar cache quando dados são modificados
+
+#### Rate Limiting
+- **SEMPRE** implementar rate limiting em endpoints sensíveis
+- **SEMPRE** retornar 429 quando limite é excedido
+
+### Monitoramento Padronizado
+
+#### Métricas
+- **SEMPRE** registrar tempo de resposta
+- **SEMPRE** registrar taxa de erro
+- **SEMPRE** registrar uso de recursos
+
+#### Alertas
+- **SEMPRE** configurar alertas para erros críticos
+- **SEMPRE** configurar alertas para performance degradada
+
+### Exemplos de Endpoints Padronizados
+
+#### Autenticação
+```typescript
+// POST /auth/register
+{
+  "success": true,
+  "userId": "user_123",
+  "message": "Usuário registrado com sucesso",
+  "activationCode": "123456"
+}
+
+// POST /auth/activate/:userId
+{
+  "success": true,
+  "message": "Usuário ativado com sucesso",
+  "token": "jwt-token",
+  "user": {
+    "id": "user_123",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "phone": "+5511999999999",
+    "status": "ACTIVE"
+  }
+}
+```
+
+#### Upload
+```typescript
+// POST /upload
+{
+  "success": true,
+  "imageUrl": "https://storage.example.com/users/user-123/image.jpg",
+  "message": "Imagem do personagem enviada com sucesso!"
+}
+```
+
 ## Regras de Deploy
 
 ### Environment Variables
@@ -444,6 +635,8 @@ Antes de commitar:
 - [ ] Performance aceitável
 - [ ] Segurança implementada
 - [ ] Error handling adequado
+- [ ] **API REST**: Padrões de resposta seguidos
+- [ ] **CAMPOS PADRONIZADOS**: `user`, `token`, `userId`, `imageUrl` usados corretamente
 
 ### Comandos Obrigatórios
 ```bash

@@ -54,52 +54,52 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 function App() {
   const { loading } = useAuth();
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-        <Router>
-          <Routes>
-            <Route 
-              path="/" 
-              element={
-                <PublicRoute>
-                  <LandingPage />
-                </PublicRoute>
-              } 
-            />
-            <Route 
-              path="/login" 
-              element={
-                <PublicRoute>
-                  <LoginForm />
-                </PublicRoute>
-              } 
-            />
-            <Route 
-              path="/register" 
-              element={
-                <PublicRoute>
-                  <RegisterWizard />
-                </PublicRoute>
-              } 
-            />
-            <Route 
-              path="/upload" 
-              element={
-                <ProtectedRoute>
-                  <CharacterUpload />
-                </ProtectedRoute>
-              } 
-            />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Router>
-      </Box>
+      {loading ? (
+        <LoadingSpinner />
+      ) : (
+        <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+          <Router>
+            <Routes>
+              <Route 
+                path="/" 
+                element={
+                  <PublicRoute>
+                    <LandingPage />
+                  </PublicRoute>
+                } 
+              />
+              <Route 
+                path="/login" 
+                element={
+                  <PublicRoute>
+                    <LoginForm />
+                  </PublicRoute>
+                } 
+              />
+              <Route 
+                path="/register" 
+                element={
+                  <PublicRoute>
+                    <RegisterWizard />
+                  </PublicRoute>
+                } 
+              />
+              <Route 
+                path="/upload" 
+                element={
+                  <ProtectedRoute>
+                    <CharacterUpload />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Router>
+        </Box>
+      )}
     </ThemeProvider>
   );
 }

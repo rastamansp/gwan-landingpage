@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -11,8 +11,10 @@ import {
   CardMedia,
   AppBar,
   Toolbar,
+  TextField,
+  Divider,
 } from '@mui/material';
-import { CloudUpload, CheckCircle, Logout, Psychology } from '@mui/icons-material';
+import { CloudUpload, CheckCircle, Logout, Psychology, Edit, Save } from '@mui/icons-material';
 import { useAuth } from '../../infrastructure/context/auth-context';
 import { useNavigate } from 'react-router-dom';
 import { ProcessCharacterImageUseCase } from '../../application/use-cases/process-character-image.use-case';
@@ -33,6 +35,33 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
   const [success, setSuccess] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [processedData, setProcessedData] = useState<any>(null);
+  const [editableAnalysis, setEditableAnalysis] = useState<string>('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [loadingCurrentImage, setLoadingCurrentImage] = useState(true);
+
+  // Buscar imagem atual do usuário ao carregar o componente
+  useEffect(() => {
+    const loadCurrentImage = async () => {
+      if (!token) return;
+
+      try {
+        const authApiService = new AuthApiService();
+        const result = await authApiService.getUserImage(token);
+
+        if (result.success && result.imageUrl) {
+          setUploadedImageUrl(result.imageUrl);
+          setPreviewUrl(result.imageUrl);
+          console.log('Imagem atual carregada:', result.imageUrl);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar imagem atual:', error);
+      } finally {
+        setLoadingCurrentImage(false);
+      }
+    };
+
+    loadCurrentImage();
+  }, [token]);
 
   const handleLogout = () => {
     logout();
@@ -88,6 +117,7 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
 
       if (result.success) {
         setUploadedImageUrl(result.imageUrl);
+        setPreviewUrl(result.imageUrl);
         setSuccess(true);
         onUploadSuccess?.(result.imageUrl);
       } else {
@@ -107,6 +137,8 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
     setError(null);
     setSuccess(false);
     setProcessedData(null);
+    setEditableAnalysis('');
+    setIsEditing(false);
   };
 
   const handleProcessImage = async () => {
@@ -123,6 +155,9 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
 
       if (result.success) {
         setProcessedData(result.processedData);
+        // Converter análise para JSON formatado
+        const formattedAnalysis = JSON.stringify(result.processedData?.analysis || {}, null, 2);
+        setEditableAnalysis(formattedAnalysis);
         setSuccess(true);
       } else {
         setError(result.error || 'Erro ao processar imagem');
@@ -133,6 +168,99 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
       setProcessing(false);
     }
   };
+
+  const handleEditAnalysis = () => {
+    setIsEditing(true);
+  };
+
+  const handleSaveAnalysis = () => {
+    try {
+      // Validar se é JSON válido
+      JSON.parse(editableAnalysis);
+      setIsEditing(false);
+      setSuccess(true);
+    } catch (error) {
+      setError('JSON inválido. Verifique a formatação.');
+    }
+  };
+
+  const formatAnalysisForDisplay = (analysis: any) => {
+    if (!analysis) return '';
+    const sections: string[] = [];
+
+    if (analysis.identidade) {
+      sections.push('=== IDENTIDADE ===');
+      Object.entries(analysis.identidade).forEach(([key, value]) => {
+        sections.push(`${key}: ${value || 'Não definido'}`);
+      });
+    }
+    
+    if (analysis.corpo) {
+      sections.push('\n=== CORPO ===');
+      Object.entries(analysis.corpo).forEach(([key, value]) => {
+        sections.push(`${key}: ${value || 'Não definido'}`);
+      });
+    }
+    
+    if (analysis.rosto) {
+      sections.push('\n=== ROSTO ===');
+      Object.entries(analysis.rosto).forEach(([key, value]) => {
+        sections.push(`${key}: ${value || 'Não definido'}`);
+      });
+    }
+    
+    if (analysis.olhos) {
+      sections.push('\n=== OLHOS ===');
+      Object.entries(analysis.olhos).forEach(([key, value]) => {
+        sections.push(`${key}: ${value || 'Não definido'}`);
+      });
+    }
+    
+    if (analysis.cabelo) {
+      sections.push('\n=== CABELO ===');
+      Object.entries(analysis.cabelo).forEach(([key, value]) => {
+        sections.push(`${key}: ${value || 'Não definido'}`);
+      });
+    }
+    
+    if (analysis.vestuario) {
+      sections.push('\n=== VESTUÁRIO ===');
+      Object.entries(analysis.vestuario).forEach(([key, value]) => {
+        sections.push(`${key}: ${value || 'Não definido'}`);
+      });
+    }
+    
+    if (analysis.calcado) {
+      sections.push('\n=== CALÇADO ===');
+      Object.entries(analysis.calcado).forEach(([key, value]) => {
+        sections.push(`${key}: ${value || 'Não definido'}`);
+      });
+    }
+    
+    if (analysis.acessorios) {
+      sections.push('\n=== ACESSÓRIOS ===');
+      Object.entries(analysis.acessorios).forEach(([key, value]) => {
+        sections.push(`${key}: ${value || 'Não definido'}`);
+      });
+    }
+    
+    if (analysis.estiloFotografico) {
+      sections.push('\n=== ESTILO FOTOGRÁFICO ===');
+      Object.entries(analysis.estiloFotografico).forEach(([key, value]) => {
+        sections.push(`${key}: ${value || 'Não definido'}`);
+      });
+    }
+    
+    return sections.join('\n');
+  };
+
+  if (loadingCurrentImage) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
@@ -163,7 +291,7 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ maxWidth: 600, mx: 'auto', p: 3 }}>
+      <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
         <Typography variant="h4" gutterBottom align="center">
           Upload do Personagem
         </Typography>
@@ -180,7 +308,7 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
 
         {success && (
           <Alert severity="success" sx={{ mb: 2 }}>
-            Imagem enviada com sucesso!
+            Operação realizada com sucesso!
           </Alert>
         )}
 
@@ -222,58 +350,62 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
         {processedData && (
           <Card sx={{ mb: 3 }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Dados Processados
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Processado em: {processedData.processedAt}
-              </Typography>
-              
-              {processedData.analysis && (
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Análise
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Confiança: {(processedData.analysis.confidence * 100).toFixed(1)}%
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Recursos: {processedData.analysis.features.join(', ')}
-                  </Typography>
-                </Box>
-              )}
-              
-              {processedData.results && (
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6" gutterBottom>
+                  Análise do Personagem
+                </Typography>
                 <Box>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Resultados
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Tipo: {processedData.results.characterType}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Pose: {processedData.results.pose}
-                  </Typography>
-                  
-                  {processedData.results.attributes && (
-                    <Box sx={{ mt: 1 }}>
-                      <Typography variant="subtitle2" gutterBottom>
-                        Atributos
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Força: {processedData.results.attributes.strength}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Agilidade: {processedData.results.attributes.agility}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Inteligência: {processedData.results.attributes.intelligence}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Carisma: {processedData.results.attributes.charisma}
-                      </Typography>
-                    </Box>
+                  {!isEditing ? (
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={handleEditAnalysis}
+                      startIcon={<Edit />}
+                    >
+                      Editar
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={handleSaveAnalysis}
+                      startIcon={<Save />}
+                    >
+                      Salvar
+                    </Button>
                   )}
+                </Box>
+              </Box>
+              
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Processado em: {processedData.processedAt || new Date().toLocaleString()}
+              </Typography>
+              
+              <Divider sx={{ mb: 2 }} />
+              
+              {isEditing ? (
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={20}
+                  value={editableAnalysis}
+                  onChange={(e) => setEditableAnalysis(e.target.value)}
+                  variant="outlined"
+                  sx={{ fontFamily: 'monospace' }}
+                  helperText="Edite as informações do personagem. Use 'Não definido' para campos vazios."
+                />
+              ) : (
+                <Box sx={{ 
+                  bgcolor: 'grey.50', 
+                  p: 2, 
+                  borderRadius: 1,
+                  fontFamily: 'monospace',
+                  fontSize: '0.875rem',
+                  whiteSpace: 'pre-wrap',
+                  maxHeight: 400,
+                  overflow: 'auto'
+                }}>
+                  {formatAnalysisForDisplay(processedData.analysis)}
                 </Box>
               )}
             </CardContent>

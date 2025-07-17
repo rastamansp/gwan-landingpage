@@ -64,11 +64,33 @@ export class AuthApiService {
         });
     }
 
-    async processCharacterImage(token: string): Promise<any> {
-        return this.makeRequest<any>('/upload/process', {
+    async getUserImage(token: string): Promise<{
+        success: boolean;
+        imageUrl?: string;
+        message?: string;
+        error?: string;
+    }> {
+        return this.makeRequest<any>('/upload', {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+    }
+
+    async processCharacterImage(token: string): Promise<{
+        success: boolean;
+        processedData?: {
+            analysis: any;
+            processedAt: string;
+            imageUrl: string;
+        };
+        error?: string;
+    }> {
+        return this.makeRequest<any>(`/upload/process`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`,
+                Authorization: `Bearer ${token}`,
             },
         });
     }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../infrastructure/context/auth-context';
+import { buildApiUrl, debugApiConfig } from '../../../../config/api';
 import {
   Box,
   Button,
@@ -28,8 +29,14 @@ export const LoginForm: React.FC = () => {
     setLoading(true);
     setError(null);
 
+    // Debug da configuração da API
+    debugApiConfig();
+
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/login-request`, {
+      const apiUrl = buildApiUrl('/auth/login-request');
+      console.log('🔗 Fazendo requisição para:', apiUrl);
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -38,6 +45,7 @@ export const LoginForm: React.FC = () => {
       });
 
       const data = await response.json();
+      console.log('📡 Resposta do servidor:', data);
 
       if (data.success) {
         setSuccess('Código enviado! Verifique seu email ou WhatsApp.');
@@ -46,6 +54,7 @@ export const LoginForm: React.FC = () => {
         setError(data.message || 'Erro ao solicitar código');
       }
     } catch (error) {
+      console.error('❌ Erro na requisição:', error);
       setError('Erro de conexão. Tente novamente.');
     } finally {
       setLoading(false);
@@ -58,7 +67,10 @@ export const LoginForm: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/login-validate`, {
+      const apiUrl = buildApiUrl('/auth/login-validate');
+      console.log('🔗 Fazendo requisição para:', apiUrl);
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -70,10 +82,11 @@ export const LoginForm: React.FC = () => {
       });
 
       const data = await response.json();
+      console.log('📡 Resposta do servidor:', data);
 
       if (data.success) {
         // Fazer login com token retornado
-        login(data.token, data.userData);
+        login(data.token, data.user);
         setSuccess('Login realizado com sucesso! Redirecionando...');
         
         setTimeout(() => {
@@ -83,6 +96,7 @@ export const LoginForm: React.FC = () => {
         setError(data.message || 'Código inválido');
       }
     } catch (error) {
+      console.error('❌ Erro na requisição:', error);
       setError('Erro de conexão. Tente novamente.');
     } finally {
       setLoading(false);

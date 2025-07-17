@@ -6,17 +6,21 @@ export interface ProcessCharacterImageRequest {
 
 export interface ProcessCharacterImageResponse {
   success: boolean;
-  processedData?: any;
+  processedData?: {
+    analysis: any;
+    processedAt: string;
+    imageUrl: string;
+  };
   error?: string;
 }
 
 export class ProcessCharacterImageUseCase {
-  constructor(private readonly authApiService: AuthApiService) {}
+  constructor(private readonly authApiService: AuthApiService) { }
 
   async execute(request: ProcessCharacterImageRequest): Promise<ProcessCharacterImageResponse> {
     try {
       const result = await this.authApiService.processCharacterImage(request.token);
-      
+
       return {
         success: true,
         processedData: result.processedData,

@@ -1,58 +1,225 @@
-# 🚀 Gwan Landing Page
+# Gwan Landing Page - Análise de Personagens com IA
 
-Uma landing page moderna e responsiva desenvolvida com React.js e Material Design, com backend em NestJS seguindo princípios de Clean Architecture e SOLID.
+Sistema de landing page da Gwan com **análise avançada de personagens usando Inteligência Artificial**. O projeto permite que usuários façam upload de imagens de personagens e recebam análises detalhadas e estruturadas usando GPT-4 Vision.
 
-## 📋 Sobre o Projeto
+## 🎯 Funcionalidade Principal
 
-O **Gwan Landing Page** é uma plataforma de autenticação e upload de imagens com dois fluxos de acesso implementados e funcionais:
+### 🤖 Análise de Personagens com IA
 
-### 🔐 Fluxos de Autenticação Implementados
+- **Upload de Imagens**: Sistema completo de upload organizado por usuário
+- **Análise com GPT-4 Vision**: Processamento de imagens usando OpenAI
+- **Ficha Detalhada**: Análise estruturada com 9 categorias principais:
+  - **Identidade** (Nome, Gênero, Idade, Nacionalidade)
+  - **Corpo e Postura** (Altura, Corpo, Cintura, Postura)
+  - **Rosto e Pele** (Formato, Testa, Maçãs, Queixo, Nariz, Lábios, Expressão)
+  - **Olhos e Maquiagem** (Tamanho, Formato, Cor, Cílios, Maquiagem, Sobrancelhas)
+  - **Cabelo** (Corte, Comprimento, Divisão, Textura, Cor, Finalização)
+  - **Vestuário** (Marca, Modelo, Cor, Tecido, Caimento, Comprimento, Decote, Detalhes, Fecho)
+  - **Calçado** (Marca, Modelo, Cor, Salto, Bico, Estilo)
+  - **Acessórios** (Brincos, Anel, Pescoço, Pulsos, Unhas)
+  - **Estilo Fotográfico** (Estilo, Enquadramento, Câmera simulada, Abertura, ISO, Iluminação, Textura, Aparência)
 
-#### **1. Login Rápido (Usuários Cadastrados)** ✅ **FUNCIONANDO**
-- Usuário acessa a landing page e clica em "Já tenho conta"
-- Preenche **Email ou WhatsApp** (identificação automática)
-- Recebe **código de 6 dígitos** via email/SMS
-- Valida o código e acessa automaticamente a área de upload
-- **Sessão persistente** com JWT token
+### 🔐 Sistema de Autenticação Completo
 
-#### **2. Cadastro (Novos Usuários)** ✅ **FUNCIONANDO**
-- Usuário escolhe "Quero me cadastrar"
-- **Passo 1**: Preenche **Nome**, **Email** e **Telefone**
-- **Passo 2**: Recebe **código de ativação de 6 dígitos** via email/SMS
-- Valida o código e acessa automaticamente a área de upload
-- **Login automático** após ativação
+- **Login Rápido**: Solicitar código → Validar código → JWT token → Redirecionamento
+- **Cadastro em 2passos**: Registro → Ativação → Login automático
+- **Sessão persistente**: Token no localStorage com fallback para cookies
+- **Proteção de rotas**: JWT Guards implementados
 
-### 🖼️ Funcionalidade Principal - Upload de Imagem ✅ **FUNCIONANDO**
+### 🖼️ Sistema de Upload Organizado
 
-Após autenticação (login ou cadastro), o usuário é direcionado automaticamente para a **área de upload de imagem**, que é a funcionalidade principal da plataforma.
+- **Upload por usuário**: Pasta `uploads/user-{userId}/` para cada usuário
+- **Nome original preservado**: Arquivos mantêm nome original
+- **Validação de arquivos**: JPG, JPEG, PNG, GIF até 20- **URL de retorno**: Sistema retorna URL da imagem para uso futuro
+- **Imagem atual exibida**: Carrega automaticamente a imagem existente do usuário
+- **Atualização automática**: `profileImageUrl` do usuário é atualizada a cada upload
 
-#### Organização de Arquivos
-- **Pasta por Usuário**: `uploads/user-{userId}/`
-- **Nome Original**: Arquivos mantêm o nome original
-- **Sem Conflitos**: Cada usuário tem sua própria pasta
-- **Estrutura Segura**: Isolamento completo entre usuários
+## 🏗️ Arquitetura
 
-#### Exemplo de Estrutura
+### Clean Architecture
+
+- **Domain Layer**: Entidades com regras de negócio
+- **Application Layer**: Use Cases implementados
+- **Infrastructure Layer**: Repositórios e serviços (incluindo OpenAI)
+- **Presentation Layer**: Controllers e componentes React
+
+### Tecnologias
+
+- **Backend**: NestJS com TypeScript
+- **Frontend**: React com TypeScript
+- **IA**: OpenAI GPT-4ision
+- **Banco**: PostgreSQL com TypeORM
+- **Autenticação**: JWT com Passport
+- **Storage**: MinIO para armazenamento de imagens
+
+## 📋 Use Cases Implementados
+
+### 🔐 Autenticação
+
+#### Backend Use Cases
+
+- ✅ **RegisterUserUseCase**: Cadastro de usuário com validações
+- ✅ **ActivateUserUseCase**: Ativação de usuário com código
+- ✅ **LoginRequestUseCase**: Solicitação de código de login
+- ✅ **LoginValidateUseCase**: Validação de código de login
+
+#### Frontend Use Cases
+
+- ✅ **RegisterUserUseCase**: Cadastro de usuário no frontend
+- ✅ **ActivateUserUseCase**: Ativação de usuário no frontend
+- ✅ **ProcessCharacterImageUseCase**: Processamento de imagem com IA
+
+### 🖼️ Upload e Processamento
+
+#### Backend Use Cases
+
+- ✅ **UploadCharacterImageUseCase**: Upload de imagem de personagem
+- ✅ **ProcessCharacterImageUseCase**: Processamento com GPT-4sion
+- ✅ **GetUserImageUseCase**: Buscar imagem atual do usuário
+
+#### Frontend Use Cases
+
+- ✅ **ProcessCharacterImageUseCase**: Integração com backend para processamento
+
+### 📊 Funcionalidades por Use Case
+
+#### RegisterUserUseCase
+
+- **Input**: Nome, email, telefone
+- **Output**: userId, activationCode
+- **Validações**: Email, telefone, nome
+- **Regras de negócio**: Geração de código de ativação
+
+#### ActivateUserUseCase
+
+- **Input**: userId, activationCode
+- **Output**: Token JWT, dados do usuário
+- **Validações**: Código válido e não expirado
+- **Regras de negócio**: Ativação de conta
+
+#### LoginRequestUseCase
+
+- **Input**: Email ou telefone
+- **Output**: Código de login enviado
+- **Validações**: Contato existente
+- **Regras de negócio**: Geração de código de login
+
+#### LoginValidateUseCase
+
+- **Input**: Código de login
+- **Output**: Token JWT, dados do usuário
+- **Validações**: Código válido
+- **Regras de negócio**: Autenticação
+
+#### UploadCharacterImageUseCase
+
+- **Input**: userId, imageFile
+- **Output**: imageUrl, sucesso/erro
+- **Validações**: Tipo de arquivo, tamanho (20
+- **Regras de negócio**: Upload para MinIO, atualização de personagem e usuário
+
+#### ProcessCharacterImageUseCase
+
+- **Input**: userId
+- **Output**: Análise completa com9categorias
+- **Validações**: Usuário autenticado, imagem existente
+- **Regras de negócio**: Processamento com GPT-4sion
+
+#### GetUserImageUseCase
+
+- **Input**: userId
+- **Output**: imageUrl atual do usuário
+- **Validações**: Usuário autenticado
+- **Regras de negócio**: Busca de imagem atual
+
+## 📋 Requisitos do Sistema
+
+### Versões Recomendadas
+
+- **Node.js**: `220.140` ou superior (LTS)
+- **npm**: `11.4.2` ou superior
+- **NestJS**: `10.x`
+- **React**: `18.x`
+- **TypeScript**: `4.9.x`
+
+### Configuração com NVM (Recomendado)
+
+```bash
+# Instalar Node.js 220.140
+nvm install 22140
+nvm use 220.14
+
+# Verificar versão
+node --version  # v22.140
+npm --version   # 11.40.2```
+
+### Configuração Manual
+
+Se não usar NVM, baixe diretamente do [nodejs.org](https://nodejs.org/):
+
+- **Versão LTS**: 22.140ou superior
+- **Arquitetura**: 64## Compatibilidade
+
+- ✅ **Node.js 22 Totalmente compatível
+- ✅ **Node.js 20.17.0**: Compatível
+- ⚠️ **Node.js 20.120.2**: Funciona com `--legacy-peer-deps`
+- ❌ **Node.js < 20.170*: Não recomendado
+
+### 🔧 Troubleshooting de Versões
+
+#### Problema: "npm does not support Node.js v20.122
+**Solução:**
+
+```bash
+# Opção 1: Usar versão compatível
+nvm use 22.140 Opção 2: Instalar com flag legacy
+npm install --legacy-peer-deps
+
+# Opção3 Atualizar npm
+npm install -g npm@latest
 ```
-uploads/
-├── user-123/
-│   ├── avatar.jpg
-│   └── personagem.png
-└── user-456/
-    └── imagem.gif
+
+#### Problema: Invalid hook call" no React
+
+**Solução:**
+
+```bash
+# Limpar cache e reinstalar
+rm -rf node_modules package-lock.json
+npm install --legacy-peer-deps
 ```
 
-## 🏗️ Arquitetura Implementada
+#### Problema: "Cannot find module" no backend
 
-O projeto segue os princípios de **Clean Architecture** e **SOLID**, organizado em módulos independentes:
+**Solução:**
 
-- **Frontend**: React.js com Material Design ✅
-- **Backend**: NestJS com TypeScript ✅
-- **Database**: PostgreSQL ✅
-- **Autenticação**: JWT com sessão persistente ✅
-- **Upload**: Sistema de arquivos organizado por usuário ✅
-- **Testes**: Testes automatizados implementados ✅
-- **Documentação**: Swagger/OpenAPI implementado ✅
+```bash
+cd backend
+npm install @nestjs/jwt @nestjs/passport passport-jwt reflect-metadata openai
+```
+
+### 📦 Instalação de Dependências
+
+#### Frontend
+
+```bash
+cd frontend
+npm install --legacy-peer-deps
+```
+
+#### Backend
+
+```bash
+cd backend
+npm install
+```
+
+#### Shared
+
+```bash
+cd shared
+npm install
+```
 
 ## 🚀 Quick Start
 
@@ -69,7 +236,7 @@ cd gwan-landingpage
 npm run install:all
 ```
 
-3. **Configure as variáveis de ambiente**
+3*Configure as variáveis de ambiente**
 
 ```bash
 # Copie os arquivos de exemplo
@@ -77,6 +244,7 @@ cp frontend/.env.example frontend/.env
 cp backend/.env.example backend/.env
 
 # Configure as variáveis necessárias
+# IMPORTANTE: Configure OPENAI_API_KEY no backend/.env
 ```
 
 4. **Inicie o desenvolvimento**
@@ -87,9 +255,27 @@ npm run dev
 
 O projeto estará disponível em:
 
-- **Frontend**: <http://localhost:3000>
-- **Backend**: <http://localhost:3001>
+- **Frontend**: <http://localhost:300>
+- **Backend**: <<http://localhost:3001>
 - **API Docs**: <http://localhost:3001/api>
+
+## 🤖 Configuração da IA
+
+### OpenAI API Key
+
+Para usar a funcionalidade de análise de personagens, configure sua chave da OpenAI:
+
+```bash
+# No arquivo backend/.env
+OPENAI_API_KEY=sk-proj-sua-chave-aqui
+```
+
+### Funcionalidades da IA
+
+- **Análise Visual**: GPT-4 Vision analisa imagens de personagens
+- **Ficha Estruturada**: Gera ficha detalhada em formato JSON
+- **Múltiplas Categorias**: 9 categorias principais de análise
+- **Tratamento de Erros**: Fallback e tratamento robusto de erros
 
 ## 🧪 Testes
 
@@ -98,16 +284,18 @@ O projeto estará disponível em:
 **Testes são fundamentais para a qualidade do código e devem ser executados antes de qualquer commit, push ou merge.**
 
 #### ✅ Regras Obrigatórias
+
 - **NUNCA** suba código sem testes passando
 - **NUNCA** faça merge sem testes passando
-- **Cobertura mínima**: 80% de testes
+- **Cobertura mínima**: 80de testes
 - **Testes quebrados = Bug** - Corrija antes de continuar
 
 #### 📋 Checklist Antes de Commits
-- [ ] `npm run lint` - ZERO erros
-- [ ] `npm run build` - ZERO erros
-- [ ] `npm run test` - TODOS os testes passando
-- [ ] `npm run dev` - Projeto roda sem problemas
+
+- ] `npm run lint` - ZERO erros
+- ] `npm run build` - ZERO erros
+- ] `npm run test` - TODOS os testes passando
+- ] `npm run dev` - Projeto roda sem problemas
 
 ### Executar Testes
 
@@ -130,152 +318,53 @@ npm run test:watch
 
 ### Cobertura de Testes
 
-- **Backend**: 12 testes unitários e de integração ✅
+- **Backend**: 12testes unitários e de integração ✅
 - **Frontend**: Testes de componentes implementados ✅
 - **Manual**: Todos os fluxos testados ✅
 - **Política**: Documentação completa em `TESTING_POLICY.md` ✅
 
 ## 📚 Documentação
 
-### API Documentation
-- **Swagger UI**: <http://localhost:3001/api>
-- **Endpoints Documentados**: Todos os endpoints da aplicação
-- **Schemas**: Request/Response schemas detalhados
-- **Authentication**: Bearer token configurado
+### 📋 Documentação Técnica
 
-### Documentação Técnica
-- **README.md**: Este arquivo
-- **PROJECT_STATUS.md**: Status detalhado do projeto
-- **TODO.md**: Próximos passos e melhorias
-- **AUTH_IMPLEMENTATION.md**: Documentação de autenticação
-- **UPLOAD_SYSTEM.md**: Documentação do sistema de upload
+- **PROJECT_SETUP.md**: Setup detalhado do projeto
+- **PROJECT_STATUS.md**: Status atual de todas as funcionalidades
+- **API_STANDARDS.md**: Padrões de API REST
 - **TESTING_POLICY.md**: Política de testes obrigatória
+- **AUTH_IMPLEMENTATION.md**: Implementação do sistema de autenticação
+- **UPLOAD_SYSTEM.md**: Sistema de upload e processamento
+- **PROCESS_IMAGE_FEATURE.md**: Funcionalidade de processamento com IA
 
-## 📁 Estrutura do Projeto
+### 🔧 Documentação de Desenvolvimento
 
-```
-gwan-landingpage/
-├── frontend/                # Aplicação React.js ✅
-│   ├── src/
-│   │   ├── modules/         # Módulos da aplicação
-│   │   │   ├── auth/        # Módulo de autenticação (login/cadastro) ✅
-│   │   │   │   ├── domain/  # Entidades e regras de negócio
-│   │   │   │   ├── application/ # Use Cases
-│   │   │   │   ├── infrastructure/ # Implementações concretas
-│   │   │   │   └── presentation/ # Componentes React
-│   │   │   └── upload/      # Módulo de upload de imagem ✅
-│   │   ├── shared/          # Código compartilhado
-│   │   └── core/            # Configurações centrais
-│   └── package.json
-├── backend/                 # API NestJS ✅
-│   ├── src/
-│   │   ├── modules/         # Módulos da aplicação
-│   │   │   ├── auth/        # Módulo de autenticação (login/cadastro) ✅
-│   │   │   │   ├── domain/  # Entidades e regras de negócio
-│   │   │   │   ├── application/ # Use Cases
-│   │   │   │   ├── infrastructure/ # Repositórios e serviços externos
-│   │   │   │   └── presentation/ # Controllers e DTOs
-│   │   │   └── upload/      # Módulo de upload de imagem ✅
-│   │   ├── shared/          # Código compartilhado
-│   │   └── core/            # Configurações centrais
-│   └── package.json
-├── shared/                  # Código compartilhado ✅
-├── docs/                    # Documentação
-└── package.json             # Root package.json
-```
+- **SETUP_NODE.md**: Configuração do Node.js
+- **TODO.md**: Tarefas pendentes e próximos passos
+- **TESTING_UPDATES.md**: Atualizações de testes
+- **UPLOAD_FIXES.md**: Correções do sistema de upload
 
-## 🔐 Funcionamento Detalhado dos Fluxos
-
-### Fluxo 1: Login Rápido (Usuários Cadastrados)
-
-1. **Acesso à Landing Page**
-   - Usuário acessa `http://localhost:3000`
-   - Vê opções: "Já tenho conta" ou "Quero me cadastrar"
-
-2. **Solicitar Código de Login**
-   - Clica em "Já tenho conta"
-   - Preenche email ou WhatsApp no campo de contato
-   - Sistema identifica automaticamente o tipo de contato
-   - Clica em "Enviar Código"
-   - Backend gera código de 6 dígitos e simula envio
-
-3. **Validar Código e Login**
-   - Usuário recebe código por email/SMS
-   - Digita o código de 6 dígitos
-   - Clica em "Entrar"
-   - Backend valida código e gera JWT token
-   - Frontend salva token e redireciona para `/upload`
-
-4. **Área de Upload**
-   - Usuário acessa área protegida `/upload`
-   - Pode fazer upload de imagem do personagem
-   - Sistema organiza arquivos por usuário
-   - Botão de logout disponível
-
-### Fluxo 2: Cadastro (Novos Usuários)
-
-1. **Início do Cadastro**
-   - Usuário clica em "Quero me cadastrar"
-   - Inicia wizard de cadastro em 2 passos
-
-2. **Passo 1: Dados Pessoais**
-   - Preenche nome, email e telefone
-   - Validações em tempo real
-   - Clica em "Próximo"
-
-3. **Passo 2: Ativação**
-   - Sistema gera código de ativação de 6 dígitos
-   - Simula envio por email e SMS
-   - Usuário digita código recebido
-   - Clica em "Ativar Conta"
-
-4. **Login Automático**
-   - Backend valida código e ativa usuário
-   - **Gera JWT token automaticamente**
-   - Frontend salva token e redireciona para `/upload`
-
-5. **Área de Upload**
-   - Usuário já está logado automaticamente
-   - Pode fazer upload de imagem do personagem
-   - Sistema organiza arquivos por usuário
-
-### Sistema de Sessão Persistente
-
-1. **Verificação Automática**
-   - Ao carregar a aplicação, verifica token no localStorage
-   - Se válido, restaura sessão automaticamente
-   - Se inválido, remove token e redireciona para login
-
-2. **Redirecionamento Inteligente**
-   - Usuários autenticados → `/upload`
-   - Usuários não autenticados → `/`
-   - Loading durante verificação
-
-3. **Proteção de Rotas**
-   - Rotas protegidas só acessíveis com token válido
-   - Rotas públicas redirecionam usuários autenticados
-   - Logout limpa token e redireciona para home
-
-## 🛠️ Scripts Disponíveis
+## 🚀 Scripts Disponíveis
 
 ### Desenvolvimento
 
 ```bash
+# Instalar todas as dependências
+npm run install:all
+
 # Iniciar desenvolvimento (frontend + backend)
 npm run dev
 
-# Apenas frontend
+# Iniciar apenas frontend
 npm run dev:frontend
 
-# Apenas backend
+# Iniciar apenas backend
 npm run dev:backend
 ```
 
-### Build
+### Build e Deploy
 
 ```bash
-# Build de produção
-npm run build
+# Build de todos os projetos
+npm run build:all
 
 # Build do frontend
 npm run build:frontend
@@ -296,141 +385,83 @@ npm run test:backend
 # Testes do frontend
 npm run test:frontend
 
-# Testes com coverage
+# Testes com cobertura
 npm run test:coverage
 ```
 
 ### Qualidade de Código
 
 ```bash
-# Lint
-npm run lint
+# Lint de todos os projetos
+npm run lint:all
 
 # Lint do frontend
 npm run lint:frontend
 
 # Lint do backend
 npm run lint:backend
-
-# Format
-npm run format
 ```
 
-### Instalação
+## 🎯 Funcionalidades Implementadas
 
-```bash
-# Instalar todas as dependências
-npm run install:all
+### ✅ Sistema Completo de Autenticação
 
-# Instalar dependências do frontend
-npm run install:frontend
+- Login rápido com código
+- Cadastro em2s
+- Sessão persistente
+- Proteção de rotas
 
-# Instalar dependências do backend
-npm run install:backend
-```
+### ✅ Sistema de Upload Avançado
 
-## 🗄️ Banco de Dados
+- Upload organizado por usuário
+- Validação de arquivos
+- Preservação de nome original
+- Exibição de imagem atual
+- Atualização automática de profileImageUrl
 
-### Configuração
+### ✅ Análise de Personagens com IA
 
-O projeto usa **PostgreSQL** como banco de dados principal. A configuração está em `backend/src/core/config/database.config.ts`.
+- Processamento com GPT-4 Vision
+- 9 categorias de análise
+- Ficha estruturada em JSON
+- Interface editável
+- Tratamento robusto de erros
 
-### Migrações
+### ✅ Arquitetura Limpa
 
-```bash
-# Gerar migração
-npm run migration:generate
+- Clean Architecture implementada
+- Princípios SOLID seguidos
+- Use Cases bem definidos
+- Separação de responsabilidades
 
-# Executar migrações
-npm run migration:run
+### ✅ Testes Automatizados
 
-# Reverter migração
-npm run migration:revert
-```
+- Testes unitários
+- Testes de integração
+- Cobertura de testes
+- Política de testes obrigatória
 
-## 🔐 Segurança
+## 🔄 Próximos Passos
 
-### Autenticação JWT
+### Melhorias Planejadas
 
-- **Token Generation**: Tokens JWT gerados automaticamente
-- **Token Validation**: Validação em todas as rotas protegidas
-- **Token Refresh**: Renovação automática de tokens
-- **Secure Storage**: Armazenamento seguro no localStorage
+1 **Histórico de Análises**: Armazenar histórico de análises por usuário
+2mparação de Personagens**: Comparar múltiplos personagens
+3 **Exportação de Dados**: Exportar análises em diferentes formatos4. **Dashboard Avançado**: Interface mais rica para visualização5 **Notificações**: Sistema de notificações em tempo real
 
-### Validação de Dados
+### Otimizações Técnicas1**Cache de Imagens**: Implementar cache para melhor performance
 
-- **Input Validation**: Validação de entrada com class-validator
-- **File Validation**: Validação de arquivos de upload
-- **Email Validation**: Validação de formato de email
-- **Phone Validation**: Validação de formato de telefone
-
-### Proteção de Rotas
-
-- **JWT Guards**: Guards implementados para rotas protegidas
-- **Role-based Access**: Controle de acesso baseado em roles
-- **Unauthorized Handling**: Tratamento adequado de não autorizado
-
-## 🎨 UI/UX
-
-### Material Design
-
-- **Components**: Componentes Material-UI
-- **Theme**: Tema customizado
-- **Responsive**: Design responsivo
-- **Accessibility**: Acessibilidade implementada
-
-### Estados de Loading
-
-- **Loading Spinner**: Spinner durante carregamentos
-- **Skeleton Loading**: Skeleton para carregamento de dados
-- **Progress Indicators**: Indicadores de progresso
-
-### Feedback de Erro
-
-- **Error Messages**: Mensagens de erro claras
-- **Validation Errors**: Erros de validação em tempo real
-- **Network Errors**: Tratamento de erros de rede
-
-## 📊 Status do Projeto
-
-### ✅ Funcionalidades Implementadas
-
-- [x] **Sistema de Autenticação** - Login e cadastro funcionais
-- [x] **Upload de Imagens** - Sistema completo de upload
-- [x] **Sessão Persistente** - Sessão mantida entre reloads
-- [x] **Proteção de Rotas** - Rotas protegidas com JWT
-- [x] **Validação de Dados** - Validação completa de entrada
-- [x] **Testes Automatizados** - Testes unitários e de integração
-- [x] **Documentação da API** - Swagger/OpenAPI implementado
-- [x] **Clean Architecture** - Arquitetura limpa implementada
-
-### 🔄 Próximos Passos
-
-- [ ] **E2E Tests** - Testes end-to-end
-- [ ] **CI/CD Pipeline** - Pipeline de deploy
-- [ ] **Docker** - Containerização
-- [ ] **Monitoring** - Monitoramento da aplicação
-
-## 🤝 Contribuição
-
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 📝 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+2**Compressão**: Otimizar tamanho das imagens
+3**Rate Limiting**: Implementar limites de uso
+4**Monitoramento**: Adicionar métricas e logs avançados
 
 ## 📞 Suporte
 
-Para suporte, envie um email para [seu-email@exemplo.com] ou abra uma issue no repositório.
+Para dúvidas ou problemas:
+1 **Documentação**: Consulte os arquivos de documentação2. **Issues**: Abra uma issue no repositório
+3. **Testes**: Execute os testes para identificar problemas
+4. **Logs**: Verifique os logs de desenvolvimento
 
 ---
 
-**Desenvolvido com ❤️ pela equipe Gwan**
-
-**Versão**: 1.0.0  
-**Última atualização**: Novembro 2025  
-**Status**: ✅ Produção Ready
+**Gwan Landing Page** - Sistema completo de análise de personagens com IA 🚀

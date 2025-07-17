@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../infrastructure/context/auth-context';
+import { buildApiUrl, debugApiConfig } from '../../../../config/api';
 
 interface RegisterWizardProps {
-  onRegisterSuccess?: (userData: any) => void;
+  onRegisterSuccess?: (user: any) => void;
 }
 
 const RegisterWizard: React.FC<RegisterWizardProps> = ({ onRegisterSuccess }) => {
@@ -23,7 +24,7 @@ const RegisterWizard: React.FC<RegisterWizardProps> = ({ onRegisterSuccess }) =>
   });
 
   // Dados do usuário retornados pelo backend
-  const [userData, setUserData] = useState({
+  const [userInfo, setUserInfo] = useState({
     userId: '',
     email: '',
   });
@@ -49,8 +50,14 @@ const RegisterWizard: React.FC<RegisterWizardProps> = ({ onRegisterSuccess }) =>
     setLoading(true);
     setError('');
 
+    // Debug da configuração da API
+    debugApiConfig();
+
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/register`, {
+      const apiUrl = buildApiUrl('/auth/register');
+      console.log('🔗 Fazendo requisição para:', apiUrl);
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -63,10 +70,11 @@ const RegisterWizard: React.FC<RegisterWizardProps> = ({ onRegisterSuccess }) =>
       });
 
       const data = await response.json();
+      console.log('📡 Resposta do servidor:', data);
 
       if (data.success) {
         // Salvar o userId retornado pelo backend
-        setUserData({
+        setUserInfo({
           userId: data.userId,
           email: formData.email,
         });
@@ -76,6 +84,7 @@ const RegisterWizard: React.FC<RegisterWizardProps> = ({ onRegisterSuccess }) =>
         setError(data.message || 'Erro ao criar conta');
       }
     } catch (error) {
+      console.error('❌ Erro na requisição:', error);
       setError('Erro de conexão. Tente novamente.');
     } finally {
       setLoading(false);
@@ -88,7 +97,10 @@ const RegisterWizard: React.FC<RegisterWizardProps> = ({ onRegisterSuccess }) =>
     setError('');
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/activate/${userData.userId}`, {
+      const apiUrl = buildApiUrl(`/auth/activate/${userInfo.userId}`);
+      console.log('🔗 Fazendo requisição para:', apiUrl);
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -99,77 +111,31 @@ const RegisterWizard: React.FC<RegisterWizardProps> = ({ onRegisterSuccess }) =>
       });
 
       const data = await response.json();
+      console.log('📡 Resposta do servidor:', data);
 
       if (data.success) {
-        setSuccess('Conta ativada! Fazendo login automático...');
+        // Fazer login automático com token retornado
+        login(data.token, data.user); // Padronizado para 'user'
+        setSuccess('Conta ativada! Redirecionando...');
         
-        // Usar token retornado pela ativação para login automático
-        if (data.token && data.userData) {
-          // Fazer login com token retornado pela ativação
-          login(data.token, data.userData);
-          
-          setTimeout(() => {
-            navigate('/upload');
-            if (onRegisterSuccess) {
-              onRegisterSuccess(data.userData);
-            }
-          }, 1000);
-        } else {
-          // Fallback: se não retornou token, fazer login tradicional
-          try {
-            const loginResponse = await fetch(`${process.env.REACT_APP_API_URL}/auth/login-request`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ contact: formData.email }),
-            });
-
-            const loginData = await loginResponse.json();
-
-            if (loginData.success) {
-              // Simular código de login (em produção seria enviado por email)
-              const validateResponse = await fetch(`${process.env.REACT_APP_API_URL}/auth/login-validate`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 
-                  contact: formData.email, 
-                  loginCode: loginData.loginCode 
-                }),
-              });
-
-              const validateData = await validateResponse.json();
-
-              if (validateData.success) {
-                // Salvar token e dados do usuário
-                login(validateData.token, validateData.userData);
-                
-                setTimeout(() => {
-                  navigate('/upload');
-                  if (onRegisterSuccess) {
-                    onRegisterSuccess(validateData.userData);
-                  }
-                }, 1000);
-              }
-            }
-          } catch (loginError) {
-            console.error('Erro no login automático:', loginError);
-            // Se falhar o login automático, redirecionar para login manual
-            setTimeout(() => {
-              navigate('/');
-            }, 2000);
-          }
-        }
+        setTimeout(() => {
+          navigate('/upload');
+        }, 1000);
       } else {
         setError(data.message || 'Código inválido');
       }
     } catch (error) {
+      console.error('❌ Erro na requisição:', error);
       setError('Erro de conexão. Tente novamente.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleBackToStep1 = () => {
+    setActiveStep(0);
+    setError('');
+    setSuccess('');
   };
 
   const renderStepContent = () => {
@@ -326,7 +292,7 @@ const RegisterWizard: React.FC<RegisterWizardProps> = ({ onRegisterSuccess }) =>
                 Digite o código de ativação enviado para:
               </p>
               <p style={{ textAlign: 'center', fontWeight: 'bold' }}>
-                {userData.email}
+                {userInfo.email}
               </p>
             </div>
 
@@ -356,7 +322,7 @@ const RegisterWizard: React.FC<RegisterWizardProps> = ({ onRegisterSuccess }) =>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button
                   type="button"
-                  onClick={() => setActiveStep(0)}
+                  onClick={handleBackToStep1}
                   style={{
                     flex: 1,
                     padding: '12px',

@@ -111,9 +111,8 @@ export class AuthController {
       properties: {
         success: { type: 'boolean', example: true },
         message: { type: 'string', example: 'Login realizado com sucesso' },
-        userId: { type: 'string', example: 'user_123' },
         token: { type: 'string', example: 'jwt-token' },
-        userData: {
+        user: {
           type: 'object',
           properties: {
             id: { type: 'string', example: 'user_123' },
@@ -150,9 +149,8 @@ export class AuthController {
     return {
       success: true,
       message: result.message,
-      userId: result.userId,
       token: result.token,
-      userData: result.userData,
+      user: result.user, // Padronizado para 'user'
     };
   }
 
@@ -252,7 +250,7 @@ export class AuthController {
         success: { type: 'boolean', example: true },
         message: { type: 'string', example: 'Usuário ativado com sucesso' },
         token: { type: 'string', example: 'jwt-token' },
-        userData: {
+        user: {
           type: 'object',
           properties: {
             id: { type: 'string', example: 'user_123' },
@@ -280,7 +278,7 @@ export class AuthController {
     @Param('userId') userId: string,
     @Body() dto: ActivateUserDto
   ) {
-    this.logger.log(`Activating user: ${userId}`);
+    this.logger.log(`Activating user: ${userId}, code: ${dto.activationCode}`);
 
     const input = new ActivateUserInput(userId, dto.activationCode);
     const result = await this.activateUserUseCase.execute(input);
@@ -293,7 +291,7 @@ export class AuthController {
       success: true,
       message: result.message,
       token: result.token,
-      userData: result.userData,
+      user: result.user, // Padronizado para 'user'
     };
   }
 }

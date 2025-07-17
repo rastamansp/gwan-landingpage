@@ -17,6 +17,18 @@ export class CharacterEntity {
   @Column()
   imageUrl: string;
 
+  @Column({ type: 'json', nullable: true })
+  analysis: any;
+
+  @Column({ nullable: true })
+  characterName: string;
+
+  @Column({ nullable: true })
+  characterAge: string;
+
+  @Column({ nullable: true })
+  characterGender: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

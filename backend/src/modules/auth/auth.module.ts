@@ -3,7 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 // Controllers
 import { AuthController } from './presentation/controllers/auth.controller';
@@ -16,6 +16,8 @@ import { LoginRequestUseCase } from './application/use-cases/login-request.use-c
 import { LoginValidateUseCase } from './application/use-cases/login-validate.use-case';
 import { UploadCharacterImageUseCase } from './application/use-cases/upload-character-image.use-case';
 import { ProcessCharacterImageUseCase } from './application/use-cases/process-character-image.use-case';
+import { GetUserImageUseCase } from './application/use-cases/get-user-image.use-case';
+import { CharacterAnalysisHistoryEntity } from './domain/entities/character-analysis-history.entity';
 
 // Repositories
 import { UserRepository } from './infrastructure/repositories/user.repository';
@@ -28,6 +30,7 @@ import { NotificationService } from './infrastructure/services/notification.serv
 import { FileUploadService } from './infrastructure/services/file-upload.service';
 import { ExternalApiService } from './infrastructure/services/external-api.service';
 import { JwtAuthService } from './infrastructure/services/jwt-auth.service';
+import { MinioService } from './infrastructure/services/minio.service';
 
 // Strategies
 import { JwtStrategy } from './infrastructure/strategies/jwt.strategy';
@@ -49,12 +52,20 @@ import { jwtConfig } from '../../core/config/jwt.config';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity, CharacterEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      CharacterEntity,
+      CharacterAnalysisHistoryEntity,
+    ]),
     MulterModule.register({
       dest: './uploads',
     }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register(jwtConfig),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => jwtConfig(configService),
+      inject: [ConfigService],
+    }),
     ConfigModule,
   ],
   controllers: [AuthController, UploadController],
@@ -66,6 +77,7 @@ import { jwtConfig } from '../../core/config/jwt.config';
     LoginValidateUseCase,
     UploadCharacterImageUseCase,
     ProcessCharacterImageUseCase,
+    GetUserImageUseCase,
 
     // Repositories
     {
@@ -91,6 +103,7 @@ import { jwtConfig } from '../../core/config/jwt.config';
       useClass: ExternalApiService,
     },
     JwtAuthService,
+    MinioService,
 
     // Strategies
     JwtStrategy,
@@ -105,6 +118,7 @@ import { jwtConfig } from '../../core/config/jwt.config';
     LoginValidateUseCase,
     UploadCharacterImageUseCase,
     ProcessCharacterImageUseCase,
+    GetUserImageUseCase,
     JwtAuthService,
   ],
 })

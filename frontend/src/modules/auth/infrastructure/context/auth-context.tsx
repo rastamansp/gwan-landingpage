@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import { buildApiUrl, debugApiConfig } from '../../../../config/api';
 
 interface User {
   id: string;
@@ -88,7 +89,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const verifyToken = useCallback(async (authToken: string) => {
     try {
       console.log('🔍 Verificando token...', authToken.substring(0, 20) + '...');
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/me`, {
+      
+      // Debug da configuração da API
+      debugApiConfig();
+      
+      const apiUrl = buildApiUrl('/auth/me');
+      console.log('🔗 Fazendo requisição para:', apiUrl);
+
+      const response = await fetch(apiUrl, {
         headers: {
           'Authorization': `Bearer ${authToken}`,
         },

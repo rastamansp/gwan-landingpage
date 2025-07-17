@@ -17,7 +17,7 @@ export class LoginValidateOutput {
     public readonly error?: string,
     public readonly userId?: string,
     public readonly token?: string,
-    public readonly userData?: {
+    public readonly user?: {
       id: string;
       name: string;
       email: string;

@@ -155,9 +155,8 @@ describe('AuthController', () => {
       const expectedResult = {
         success: true,
         message: 'Login realizado com sucesso',
-        userId: 'user-123',
         token: 'jwt-token',
-        userData: {
+        user: {
           id: 'user-123',
           name: 'John Doe',
           email: 'john@example.com',
@@ -194,7 +193,7 @@ describe('AuthController', () => {
         success: true,
         message: 'Usuário ativado com sucesso',
         token: 'jwt-token',
-        userData: {
+        user: {
           id: 'user-123',
           name: 'John Doe',
           email: 'john@example.com',

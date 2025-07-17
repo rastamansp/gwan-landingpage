@@ -4,7 +4,11 @@ export class Character {
     private readonly userId: string,
     private readonly imageUrl: string,
     private readonly createdAt: Date,
-    private readonly updatedAt: Date
+    private readonly updatedAt: Date,
+    private readonly analysis?: any,
+    private readonly characterName?: string,
+    private readonly characterAge?: string,
+    private readonly characterGender?: string
   ) {}
 
   // Getters
@@ -28,6 +32,22 @@ export class Character {
     return this.updatedAt;
   }
 
+  getAnalysis(): any {
+    return this.analysis;
+  }
+
+  getCharacterName(): string | undefined {
+    return this.characterName;
+  }
+
+  getCharacterAge(): string | undefined {
+    return this.characterAge;
+  }
+
+  getCharacterGender(): string | undefined {
+    return this.characterGender;
+  }
+
   // Método para atualizar a imagem do personagem
   updateImage(newImageUrl: string): Character {
     return new Character(
@@ -35,7 +55,31 @@ export class Character {
       this.userId,
       newImageUrl,
       this.createdAt,
-      new Date()
+      new Date(),
+      this.analysis,
+      this.characterName,
+      this.characterAge,
+      this.characterGender
+    );
+  }
+
+  // Método para atualizar análise
+  updateAnalysis(
+    analysis: any,
+    characterName?: string,
+    characterAge?: string,
+    characterGender?: string
+  ): Character {
+    return new Character(
+      this.id,
+      this.userId,
+      this.imageUrl,
+      this.createdAt,
+      new Date(),
+      analysis,
+      characterName,
+      characterAge,
+      characterGender
     );
   }
 

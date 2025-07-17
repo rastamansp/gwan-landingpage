@@ -167,7 +167,7 @@ describe('LoginForm', () => {
         success: true,
         message: 'Login realizado com sucesso',
         token: 'jwt-token',
-        userData: {
+        user: {
           id: 'user-123',
           name: 'John Doe',
           email: 'test@example.com',

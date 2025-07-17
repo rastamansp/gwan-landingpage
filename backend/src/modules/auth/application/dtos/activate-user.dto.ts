@@ -11,7 +11,7 @@ export class ActivateUserOutput {
     public readonly message?: string,
     public readonly error?: string,
     public readonly token?: string,
-    public readonly userData?: {
+    public readonly user?: {
       id: string;
       name: string;
       email: string;

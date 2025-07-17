@@ -25,14 +25,33 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    this.logger.log(`🔍 Validating JWT payload: ${JSON.stringify(payload)}`);
+    this.logger.log(
+      `🔍 JwtStrategy - Validating JWT payload: ${JSON.stringify(payload)}`
+    );
 
     if (!payload.sub) {
-      this.logger.error('❌ JWT payload missing sub field');
-      throw new UnauthorizedException('Invalid token');
+      this.logger.error('❌ JwtStrategy - JWT payload missing sub field');
+      throw new UnauthorizedException('Invalid token - missing sub field');
     }
 
-    this.logger.log(`✅ JWT validation successful for user: ${payload.sub}`);
+    if (!payload.email) {
+      this.logger.error('❌ JwtStrategy - JWT payload missing email field');
+      throw new UnauthorizedException('Invalid token - missing email field');
+    }
+
+    if (!payload.name) {
+      this.logger.error('❌ JwtStrategy - JWT payload missing name field');
+      throw new UnauthorizedException('Invalid token - missing name field');
+    }
+
+    if (!payload.status) {
+      this.logger.error('❌ JwtStrategy - JWT payload missing status field');
+      throw new UnauthorizedException('Invalid token - missing status field');
+    }
+
+    this.logger.log(
+      `✅ JwtStrategy - JWT validation successful for user: ${payload.sub}`
+    );
 
     return {
       userId: payload.sub,
