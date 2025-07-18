@@ -2,6 +2,14 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
+# Aceita argumentos de build
+ARG REACT_APP_API_URL
+ARG NODE_ENV=production
+
+# Define as variáveis de ambiente para o build
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+ENV NODE_ENV=$NODE_ENV
+
 # Copia package.json da raiz primeiro
 COPY package*.json ./
 

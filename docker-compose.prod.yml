@@ -4,10 +4,12 @@ services:
     build:
       context: .
       dockerfile: docker/frontend/Dockerfile
+      args:
+        - REACT_APP_API_URL=https://api-landingpage.gwan.com.br
+        - NODE_ENV=production
     container_name: gwan-frontend
     restart: unless-stopped
     environment:
-      - REACT_APP_API_URL=https://api-landingpage.gwan.com.br
       - NODE_ENV=production
     networks:
       - gwan
