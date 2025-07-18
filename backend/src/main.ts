@@ -39,11 +39,12 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   const port = process.env.PORT || 3001;
-  await app.listen(port);
+  const host = process.env.HOST || '0.0.0.0';
+  await app.listen(port, host);
 
-  console.log(`🚀 Application is running on: http://localhost:${port}`);
+  console.log(`🚀 Application is running on: http://${host}:${port}`);
   console.log(
-    `📚 API Documentation available at: http://localhost:${port}/api`
+    `📚 API Documentation available at: http://${host}:${port}/api`
   );
 }
 
