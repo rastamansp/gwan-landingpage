@@ -2,8 +2,8 @@ version: '3.8'
 services:
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/frontend/Dockerfile
     container_name: gwan-frontend
     restart: unless-stopped
     environment:
@@ -16,12 +16,12 @@ services:
       - "traefik.http.routers.gwan-frontend.rule=Host(`video.gwan.com.br`)"
       - "traefik.http.routers.gwan-frontend.entrypoints=websecure"
       - "traefik.http.routers.gwan-frontend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.gwan-frontend.loadbalancer.server.port=3000"
+      - "traefik.http.services.gwan-frontend.loadbalancer.server.port=80"
 
   backend:
     build:
       context: .
-      dockerfile: backend/Dockerfile
+      dockerfile: docker/backend/Dockerfile
     container_name: gwan-backend
     restart: unless-stopped
     environment:
