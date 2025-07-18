@@ -20,15 +20,13 @@ export const API_CONFIG = {
     },
 };
 
+// Debug: Log da configuração da API
+console.log('🔍 DEBUG api.ts - REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
+console.log('🔍 DEBUG api.ts - API_CONFIG.BASE_URL:', API_CONFIG.BASE_URL);
+
 // Helper function to build API URLs
 export const buildApiUrl = (endpoint: string): string => {
-    return `${API_CONFIG.BASE_URL}${endpoint}`;
-};
-
-// Debug function to check configuration
-export const debugApiConfig = () => {
-    console.log('🔧 API Configuration Debug:');
-    console.log('REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
-    console.log('API_CONFIG.BASE_URL:', API_CONFIG.BASE_URL);
-    console.log('Full URL example:', buildApiUrl('/auth/register'));
+    const url = `${API_CONFIG.BASE_URL}${endpoint}`;
+    console.log('🔍 DEBUG api.ts - buildApiUrl:', url);
+    return url;
 }; 

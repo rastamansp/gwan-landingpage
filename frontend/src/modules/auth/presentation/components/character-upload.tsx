@@ -23,6 +23,10 @@ import { ProcessCharacterImageUseCase } from '../../application/use-cases/proces
 // Configuração da API
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
+// Debug: Log da URL base
+console.log('🔍 DEBUG character-upload - API_BASE_URL:', API_BASE_URL);
+console.log('🔍 DEBUG character-upload - REACT_APP_API_URL env:', process.env.REACT_APP_API_URL);
+
 interface CharacterUploadProps {
   onUploadSuccess?: (imageUrl: string) => void;
 }
@@ -87,7 +91,10 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
       const formData = new FormData();
       formData.append('image', selectedFile);
 
-      const response = await fetch(`${API_BASE_URL}/upload`, {
+      const uploadUrl = `${API_BASE_URL}/upload`;
+      console.log('🔍 DEBUG character-upload - Upload URL:', uploadUrl);
+
+      const response = await fetch(uploadUrl, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -9,12 +9,20 @@ import {
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
+// Debug: Log da URL base
+console.log('🔍 DEBUG - API_BASE_URL:', API_BASE_URL);
+console.log('🔍 DEBUG - REACT_APP_API_URL env:', process.env.REACT_APP_API_URL);
+
 export class AuthApiService {
     private async makeRequest<T>(
         endpoint: string,
         options: RequestInit = {}
     ): Promise<T> {
         const url = `${API_BASE_URL}${endpoint}`;
+
+        // Debug: Log da URL completa
+        console.log('🔍 DEBUG - Request URL:', url);
+        console.log('🔍 DEBUG - Endpoint:', endpoint);
 
         const defaultOptions: RequestInit = {
             headers: {
