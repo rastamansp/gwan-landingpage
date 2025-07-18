@@ -1,0 +1,2 @@
+OPENAI=sk-proj-RBBDn5Cw5jynywVCfuwdzuZZnBdOysKXRQK5CXySw-QvUl8spFCQXUrFRmft_nt43WmAhboNc0
+T3BlbkFJ_odyBEmrwqb1fXzb3bGCYZ4l_FRM_RfGdahOnFXe36xK602uP9LaFQgyznm5ICbF8xAdkhJ4UA
