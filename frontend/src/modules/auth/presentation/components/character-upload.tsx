@@ -6,55 +6,55 @@ import {
   Paper,
   CircularProgress,
   Alert,
-  Card,
-  CardContent,
-  CardMedia,
+  TextField,
   AppBar,
   Toolbar,
-  TextField,
-  Divider,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
-import { CloudUpload, CheckCircle, Logout, Psychology, Edit, Save } from '@mui/icons-material';
+import { CloudUpload, Edit, Save, Logout } from '@mui/icons-material';
 import { useAuth } from '../../infrastructure/context/auth-context';
-import { useNavigate } from 'react-router-dom';
-import { ProcessCharacterImageUseCase } from '../../application/use-cases/process-character-image.use-case';
 import { AuthApiService } from '../../infrastructure/services/auth-api.service';
+import { ProcessCharacterImageUseCase } from '../../application/use-cases/process-character-image.use-case';
+
+// Configuração da API
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
 interface CharacterUploadProps {
   onUploadSuccess?: (imageUrl: string) => void;
 }
 
 export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSuccess }) => {
-  const { token, logout, user } = useAuth();
-  const navigate = useNavigate();
+  const { user, token, logout } = useAuth();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [processing, setProcessing] = useState(false);
   const [processedData, setProcessedData] = useState<any>(null);
-  const [editableAnalysis, setEditableAnalysis] = useState<string>('');
+  const [editableAnalysis, setEditableAnalysis] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [loadingCurrentImage, setLoadingCurrentImage] = useState(true);
 
-  // Buscar imagem atual do usuário ao carregar o componente
   useEffect(() => {
     const loadCurrentImage = async () => {
       if (!token) return;
 
       try {
         const authApiService = new AuthApiService();
-        const result = await authApiService.getUserImage(token);
-
-        if (result.success && result.imageUrl) {
-          setUploadedImageUrl(result.imageUrl);
-          setPreviewUrl(result.imageUrl);
-          console.log('Imagem atual carregada:', result.imageUrl);
+        const response = await authApiService.getUserImage(token);
+        
+        if (response.success && response.imageUrl) {
+          setUploadedImageUrl(response.imageUrl);
+          setPreviewUrl(response.imageUrl);
         }
       } catch (error) {
-        console.error('Erro ao carregar imagem atual:', error);
+        console.log('Nenhuma imagem atual encontrada');
       } finally {
         setLoadingCurrentImage(false);
       }
@@ -65,34 +65,16 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
 
   const handleLogout = () => {
     logout();
-    navigate('/');
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Validar tipo de arquivo
-    if (!file.type.startsWith('image/')) {
-      setError('Por favor, selecione apenas arquivos de imagem');
-      return;
+    if (file) {
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+      setError(null);
+      setSuccess(false);
     }
-
-    // Validar tamanho (20MB)
-    if (file.size > 20 * 1024 * 1024) {
-      setError('Arquivo muito grande. Tamanho máximo: 20MB');
-      return;
-    }
-
-    setSelectedFile(file);
-    setError(null);
-
-    // Criar preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setPreviewUrl(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
   };
 
   const handleUpload = async () => {
@@ -105,7 +87,7 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
       const formData = new FormData();
       formData.append('image', selectedFile);
 
-      const response = await fetch('http://localhost:3001/upload', {
+      const response = await fetch(`${API_BASE_URL}/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -313,23 +295,22 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
         )}
 
         {uploadedImageUrl && (
-          <Card sx={{ mb: 3 }}>
-            <CardContent>
+          <Paper sx={{ mb: 3 }}>
+            <Box sx={{ p: 2 }}>
               <Typography variant="h6" gutterBottom>
                 Imagem do Personagem
               </Typography>
-              <CardMedia
-                component="img"
-                image={uploadedImageUrl}
+              <img
+                src={uploadedImageUrl}
                 alt="Personagem"
-                sx={{ 
-                  height: 200, 
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: 200,
                   objectFit: 'cover',
-                  borderRadius: 1,
-                  mb: 2
+                  borderRadius: 8,
                 }}
               />
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                 URL: {uploadedImageUrl}
               </Typography>
               
@@ -338,18 +319,18 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
                 color="secondary"
                 onClick={handleProcessImage}
                 disabled={processing}
-                startIcon={processing ? <CircularProgress size={20} /> : <Psychology />}
-                sx={{ mb: 2 }}
+                startIcon={processing ? <CircularProgress size={20} /> : null}
+                sx={{ mt: 2 }}
               >
                 {processing ? 'Processando...' : 'Processar Imagem'}
               </Button>
-            </CardContent>
-          </Card>
+            </Box>
+          </Paper>
         )}
 
         {processedData && (
-          <Card sx={{ mb: 3 }}>
-            <CardContent>
+          <Paper sx={{ mb: 3 }}>
+            <Box sx={{ p: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Typography variant="h6" gutterBottom>
                   Análise do Personagem
@@ -381,7 +362,7 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
                 Processado em: {processedData.processedAt || new Date().toLocaleString()}
               </Typography>
               
-              <Divider sx={{ mb: 2 }} />
+              {/* Removed Divider as it's not in the new_code */}
               
               {isEditing ? (
                 <TextField
@@ -408,8 +389,8 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
                   {formatAnalysisForDisplay(processedData.analysis)}
                 </Box>
               )}
-            </CardContent>
-          </Card>
+            </Box>
+          </Paper>
         )}
 
         <Paper sx={{ p: 3, textAlign: 'center' }}>
@@ -460,7 +441,7 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
                     variant="contained"
                     onClick={handleUpload}
                     disabled={uploading}
-                    startIcon={uploading ? <CircularProgress size={20} /> : <CheckCircle />}
+                    startIcon={uploading ? <CircularProgress size={20} /> : <CloudUpload />}
                     sx={{ mr: 1 }}
                   >
                     {uploading ? 'Enviando...' : 'Enviar Imagem'}
