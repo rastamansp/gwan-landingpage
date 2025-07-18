@@ -7,7 +7,7 @@ services:
     container_name: gwan-frontend
     restart: unless-stopped
     environment:
-      - REACT_APP_API_URL=https://video.gwan.com.br/api
+      - REACT_APP_API_URL=https://api-landingpage.gwan.com.br
       - NODE_ENV=production
     networks:
       - gwan
@@ -39,12 +39,10 @@ services:
       - gwan
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.gwan-backend.rule=Host(`video.gwan.com.br`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.gwan-backend.rule=Host(`api-landingpage.gwan.com.br`)"
       - "traefik.http.routers.gwan-backend.entrypoints=websecure"
       - "traefik.http.routers.gwan-backend.tls.certresolver=letsencrypt"
       - "traefik.http.services.gwan-backend.loadbalancer.server.port=3001"
-      - "traefik.http.routers.gwan-backend.middlewares=gwan-backend-stripprefix"
-      - "traefik.http.middlewares.gwan-backend-stripprefix.stripprefix.prefixes=/api"
 
 networks:
   gwan:
