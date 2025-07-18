@@ -2,15 +2,6 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-<<<<<<< HEAD
-# Copia apenas os arquivos necessários para o build
-COPY package*.json ./
-COPY backend/package*.json ./backend/
-COPY shared/package*.json ./shared/
-
-# Instala dependências
-RUN npm install
-=======
 # Debug: Verificar contexto inicial
 RUN echo "=== Contexto inicial ===" && \
     pwd && \
@@ -58,11 +49,6 @@ COPY shared ./shared
 # Debug: Verificar se o código do shared foi copiado
 RUN echo "=== Verificando código do shared ===" && \
     ls -la shared/ || echo "shared/ não existe"
->>>>>>> 20155e6 (fix: corrige .dockerignore e adiciona logs detalhados no Dockerfile para debug)
-
-# Copia o código fonte
-COPY backend ./backend
-COPY shared ./shared
 
 # Build do backend
 WORKDIR /app/backend
@@ -79,13 +65,6 @@ RUN echo "=== Verificando build criado ===" && \
 FROM node:20-alpine
 WORKDIR /app
 
-<<<<<<< HEAD
-# Copia package.json e instala apenas dependências de produção
-COPY package*.json ./
-COPY backend/package*.json ./backend/
-COPY shared/package*.json ./shared/
-RUN npm install --workspace=backend --omit=dev
-=======
 # Debug: Verificar diretório de produção
 RUN echo "=== Stage de produção ===" && \
     pwd && \
@@ -103,9 +82,8 @@ COPY shared/package*.json ./shared/
 # Instala apenas dependências de produção
 RUN echo "=== Instalando dependências de produção ===" && \
     npm install --workspace=backend --omit=dev
->>>>>>> 20155e6 (fix: corrige .dockerignore e adiciona logs detalhados no Dockerfile para debug)
 
-# Copia o build
+# Copia o build do stage anterior
 COPY --from=builder /app/backend/dist ./backend/dist
 
 # Debug: Verificar se o build foi copiado
