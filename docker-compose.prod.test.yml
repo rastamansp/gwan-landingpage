@@ -1,0 +1,92 @@
+version: '3.8'
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: gwan-frontend-prod
+    restart: unless-stopped
+    environment:
+      - REACT_APP_API_URL=http://localhost:3001
+      - NODE_ENV=production
+    ports:
+      - "3000:80"
+    networks:
+      - gwan-network-prod
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: gwan-backend-prod
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@postgres:5432/gwan_vector
+      - JWT_SECRET=${JWT_SECRET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_PORT=${MINIO_PORT}
+      - MINIO_USE_SSL=${MINIO_USE_SSL}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET=${MINIO_BUCKET}
+      - REDIS_URL=redis://redis:6379
+      - PORT=3001
+      - FRONTEND_URL=http://localhost:3000
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    networks:
+      - gwan-network-prod
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: gwan-postgres-prod
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=gwan_vector
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - gwan-network-prod
+
+  minio:
+    image: minio/minio:latest
+    container_name: gwan-minio-prod
+    restart: unless-stopped
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data_prod:/data
+    networks:
+      - gwan-network-prod
+
+  redis:
+    image: redis:7-alpine
+    container_name: gwan-redis-prod
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - gwan-network-prod
+
+networks:
+  gwan-network-prod:
+    driver: bridge
+
+volumes:
+  postgres_data_prod:
+  minio_data_prod: 

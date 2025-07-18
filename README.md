@@ -52,6 +52,89 @@ Sistema de landing page da Gwan com **análise avançada de personagens usando I
 - **Autenticação**: JWT com Passport
 - **Storage**: MinIO para armazenamento de imagens
 
+## 🗂️ Estrutura Monorepo
+
+Este projeto segue o padrão **monorepo**:
+
+- O arquivo `package.json` e `package-lock.json` ficam na **raiz** do projeto.
+- Os diretórios `frontend/` e `backend/` contêm, respectivamente, o código do React e do NestJS.
+- O gerenciamento de dependências é centralizado na raiz, usando **workspaces do npm**.
+
+## 🚀 Rodando com Docker Compose
+
+O projeto já está pronto para ser executado via Docker Compose, tanto em ambiente local quanto produção.
+
+### Pré-requisitos
+
+- Docker e Docker Compose instalados
+- Variáveis de ambiente configuradas (veja seção de configuração acima)
+
+### 🐳 Deploy com Docker
+
+1. **Configure as variáveis de ambiente:**
+
+   ```bash
+   ./scripts/setup-env.sh
+   # Edite o arquivo .env com suas configurações
+   ```
+
+2. **Suba todos os serviços:**
+
+   ```bash
+   docker-compose up -d
+   ```
+
+3. **Acesse:**
+   - Frontend: <http://localhost:3000>
+   - Backend/API: <http://localhost:3001>
+   - MinIO Console: <http://localhost:9001>
+   - PostgreSQL: localhost:5433
+   - Redis: localhost:6379
+
+### 🔍 Verificar Status
+
+```bash
+# Ver logs de todos os serviços
+docker-compose logs -f
+
+# Ver logs de um serviço específico
+docker-compose logs -f backend
+
+# Ver status dos containers
+docker-compose ps
+```
+
+### 🛑 Parar Serviços
+
+```bash
+# Parar todos os serviços
+docker-compose down
+
+# Parar e remover volumes
+docker-compose down -v
+```
+
+### 🏭 Deploy em Produção
+
+Para deploy em produção, use o arquivo `docker-compose.prod.yml`:
+
+```bash
+# Build para produção
+docker-compose -f docker-compose.prod.yml build
+
+# Deploy em produção
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+### 📋 Serviços Incluídos
+
+- **Frontend**: React app servido por Nginx
+- **Backend**: NestJS API
+- **PostgreSQL**: Banco de dados principal
+- **Redis**: Cache e sessões
+- **MinIO**: Armazenamento de imagens
+- **Rede**: `gwan_network` isolada
+
 ## 📋 Use Cases Implementados
 
 ### 🔐 Autenticação
@@ -236,16 +319,72 @@ cd gwan-landingpage
 npm run install:all
 ```
 
-3*Configure as variáveis de ambiente**
+3. **Configure as variáveis de ambiente**
 
 ```bash
-# Copie os arquivos de exemplo
-cp frontend/.env.example frontend/.env
-cp backend/.env.example backend/.env
+# Opção 1: Usar o script automático
+./scripts/setup-env.sh
 
-# Configure as variáveis necessárias
-# IMPORTANTE: Configure OPENAI_API_KEY no backend/.env
+# Opção 2: Configuração manual
+cp .env.example .env
+# Edite o arquivo .env com suas configurações
 ```
+
+### 🔧 Variáveis de Ambiente Obrigatórias
+
+O projeto usa um arquivo `.env` centralizado na raiz. Configure as seguintes variáveis:
+
+#### 🔑 Variáveis Críticas (Obrigatórias)
+
+```bash
+# OpenAI API Key (para análise de personagens)
+OPENAI_API_KEY=sk-proj-sua-chave-aqui
+
+# JWT Secret (para autenticação)
+JWT_SECRET=seu-jwt-secret-aqui
+
+# MinIO (para upload de imagens)
+MINIO_ACCESS_KEY=sua-access-key
+MINIO_SECRET_KEY=sua-secret-key
+```
+
+#### 📧 Variáveis de Email (Opcionais)
+
+```bash
+# Para envio de códigos por email
+SMTP_USER=seu-email@gmail.com
+SMTP_PASS=sua-senha
+```
+
+#### 📱 Variáveis WhatsApp (Opcionais)
+
+```bash
+# Para envio de códigos por WhatsApp
+WHATSAPP_API_URL=sua-api-url
+WHATSAPP_API_TOKEN=seu-token
+```
+
+### 🚀 Configuração Rápida
+
+1. **Execute o script de setup:**
+
+```bash
+./scripts/setup-env.sh
+```
+
+2. **Edite o arquivo .env:**
+
+```bash
+nano .env
+# ou
+code .env
+```
+
+3. **Configure pelo menos:**
+
+- `OPENAI_API_KEY`: Sua chave da OpenAI
+- `JWT_SECRET`: Uma string secreta para JWT
+- `MINIO_ACCESS_KEY` e `MINIO_SECRET_KEY`: Credenciais do MinIO
 
 4. **Inicie o desenvolvimento**
 

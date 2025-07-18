@@ -10,10 +10,7 @@ export const databaseConfig: TypeOrmModuleOptions = {
   entities: [__dirname + '/../../**/*.entity{.ts,.js}'],
   synchronize: process.env.NODE_ENV !== 'production',
   logging: process.env.NODE_ENV === 'development',
-  ssl:
-    process.env.NODE_ENV === 'production'
-      ? { rejectUnauthorized: false }
-      : false,
+  ssl: false, // Desabilitado para ambiente local
 };
 
 // Log de debug para mostrar as credenciais de conexão
