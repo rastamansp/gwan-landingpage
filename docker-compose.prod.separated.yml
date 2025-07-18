@@ -1,0 +1,98 @@
+version: '3.8'
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+    container_name: gwan-frontend
+    restart: unless-stopped
+    environment:
+      - REACT_APP_API_URL=https://video.gwan.com.br/api
+      - NODE_ENV=production
+    networks:
+      - gwan-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gwan-frontend.rule=Host(`video.gwan.com.br`)"
+      - "traefik.http.routers.gwan-frontend.entrypoints=websecure"
+      - "traefik.http.routers.gwan-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.gwan-frontend.loadbalancer.server.port=80"
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    container_name: gwan-backend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@postgres:5432/gwan_vector
+      - JWT_SECRET=${JWT_SECRET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_PORT=${MINIO_PORT}
+      - MINIO_USE_SSL=${MINIO_USE_SSL}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET=${MINIO_BUCKET}
+    depends_on:
+      - postgres
+    networks:
+      - gwan-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gwan-backend.rule=Host(`video.gwan.com.br`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.gwan-backend.entrypoints=websecure"
+      - "traefik.http.routers.gwan-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.gwan-backend.loadbalancer.server.port=3001"
+      - "traefik.http.routers.gwan-backend.middlewares=gwan-backend-stripprefix"
+      - "traefik.http.middlewares.gwan-backend-stripprefix.stripprefix.prefixes=/api"
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: gwan-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=gwan_vector
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - gwan-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: gwan-minio
+    restart: unless-stopped
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - gwan-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gwan-minio.rule=Host(`video.gwan.com.br`) && PathPrefix(`/minio`)"
+      - "traefik.http.routers.gwan-minio.entrypoints=websecure"
+      - "traefik.http.routers.gwan-minio.tls.certresolver=letsencrypt"
+      - "traefik.http.services.gwan-minio.loadbalancer.server.port=9001"
+      - "traefik.http.routers.gwan-minio.middlewares=gwan-minio-stripprefix"
+      - "traefik.http.middlewares.gwan-minio-stripprefix.stripprefix.prefixes=/minio"
+
+  redis:
+    image: redis:7-alpine
+    container_name: gwan-redis
+    restart: unless-stopped
+    networks:
+      - gwan-network
+
+networks:
+  gwan-network:
+    external: true
+
+volumes:
+  postgres_data:
+  minio_data: 
