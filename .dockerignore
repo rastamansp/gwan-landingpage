@@ -4,9 +4,15 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+<<<<<<< HEAD
 # Build outputs
 dist
 build
+=======
+# Build outputs (excluir apenas dist do frontend)
+frontend/dist
+frontend/build
+>>>>>>> 20155e6 (fix: corrige .dockerignore e adiciona logs detalhados no Dockerfile para debug)
 .next
 .nuxt
 .vuepress/dist
