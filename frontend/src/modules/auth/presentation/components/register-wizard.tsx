@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../infrastructure/context/auth-context';
-import { buildApiUrl, debugApiConfig } from '../../../../config/api';
+import { buildApiUrl } from '../../../../config/api';
 
 interface RegisterWizardProps {
   onRegisterSuccess?: (user: any) => void;
@@ -49,9 +49,6 @@ const RegisterWizard: React.FC<RegisterWizardProps> = ({ onRegisterSuccess }) =>
     e.preventDefault();
     setLoading(true);
     setError('');
-
-    // Debug da configuração da API
-    debugApiConfig();
 
     try {
       const apiUrl = buildApiUrl('/auth/register');

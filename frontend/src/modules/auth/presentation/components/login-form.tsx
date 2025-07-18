@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../infrastructure/context/auth-context';
-import { buildApiUrl, debugApiConfig } from '../../../../config/api';
+import { buildApiUrl } from '../../../../config/api';
 import {
   Box,
   Button,
@@ -28,9 +28,6 @@ export const LoginForm: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
-    // Debug da configuração da API
-    debugApiConfig();
 
     try {
       const apiUrl = buildApiUrl('/auth/login-request');
