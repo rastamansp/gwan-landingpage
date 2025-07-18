@@ -611,6 +611,14 @@ this.logger.error(`Erro na operação: ${error.message}`);
 - **ANTES DE CADA MERGE**: Execute `npm run test` e garanta todos os testes passando
 - **SEMPRE**: Valide se o projeto roda com `npm run dev` antes de commitar
 
+### Regra de Deploy - Apenas com Testes e Lint OK
+- **NUNCA FAÇA DEPLOY** se os testes não estiverem passando
+- **NUNCA FAÇA DEPLOY** se o lint não estiver OK
+- **SEMPRE EXECUTE** `npm run lint && npm run test` antes de qualquer deploy
+- **SEMPRE VERIFIQUE** que não há erros de build antes do deploy
+- **SE HOUVER ERROS**: Corrija TODOS os erros antes de fazer deploy
+- **DEPLOY SÓ APÓS**: Todos os testes passando + Lint OK + Build OK
+
 ### Importância dos Testes Unitários
 - **TESTES SÃO OBRIGATÓRIOS**: Nunca suba código sem testes passando
 - **COBERTURA MÍNIMA**: Mantenha cobertura de testes acima de 80%
@@ -643,16 +651,20 @@ Antes de commitar:
 # Antes de cada commit
 npm run lint          # Deve retornar ZERO erros
 npm run build         # Deve retornar ZERO erros
-npm run test          # TODOS os testes devem passar
+npm run test          # TODOS os testes devem passar (execução única)
 npm run dev           # Deve rodar sem problemas
 
 # Antes de cada push
-npm run test          # Todos os testes devem passar
+npm run test          # Todos os testes devem passar (execução única)
 npm run test:coverage # Verificar cobertura de testes
 
 # Antes de cada merge
-npm run test          # Todos os testes devem passar
+npm run test          # Todos os testes devem passar (execução única)
 npm run test:coverage # Verificar cobertura de testes
+
+# Comandos individuais para desenvolvimento
+npm run test:frontend # Testes do frontend apenas (execução única)
+npm run test:backend  # Testes do backend apenas (execução única)
 ```
 
 ### Regras de Commit

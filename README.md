@@ -234,7 +234,8 @@ nvm use 220.14
 
 # Verificar versão
 node --version  # v22.140
-npm --version   # 11.40.2```
+npm --version   # 11.40.2
+```
 
 ### Configuração Manual
 
@@ -251,6 +252,7 @@ Se não usar NVM, baixe diretamente do [nodejs.org](https://nodejs.org/):
 ### 🔧 Troubleshooting de Versões
 
 #### Problema: "npm does not support Node.js v20.122
+
 **Solução:**
 
 ```bash

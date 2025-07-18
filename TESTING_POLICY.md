@@ -9,17 +9,20 @@ Este documento define a política de testes obrigatória para o projeto Gwan Lan
 ## 🎯 Princípios Fundamentais
 
 ### 1. Testes São Obrigatórios
+
 - **NUNCA** suba código sem testes passando
 - **NUNCA** faça merge sem testes passando
 - **NUNCA** faça deploy sem testes passando
 - **Testes quebrados = Bug** - Corrija antes de continuar
 
 ### 2. Cobertura Mínima
+
 - **Meta**: 80% de cobertura de testes
 - **Mínimo aceitável**: 70% de cobertura
 - **Ideal**: 90%+ de cobertura
 
 ### 3. Qualidade dos Testes
+
 - **Testes devem ser legíveis** e auto-documentados
 - **Testes devem ser rápidos** (máximo 30 segundos)
 - **Testes devem ser isolados** (não dependem de outros)
@@ -30,6 +33,7 @@ Este documento define a política de testes obrigatória para o projeto Gwan Lan
 ## 🔄 Fluxo de Trabalho com Testes
 
 ### Antes de Cada Commit
+
 ```bash
 # 1. Execute lint
 npm run lint
@@ -49,6 +53,7 @@ git commit -m "feat: sua mensagem de commit"
 ```
 
 ### Antes de Cada Push
+
 ```bash
 # 1. Execute todos os testes
 npm run test
@@ -61,6 +66,7 @@ git push origin sua-branch
 ```
 
 ### Antes de Cada Merge
+
 ```bash
 # 1. Execute testes completos
 npm run test
@@ -79,6 +85,7 @@ npm run test:integration
 ## 📊 Comandos de Teste
 
 ### Comandos Principais
+
 ```bash
 # Todos os testes
 npm run test
@@ -100,6 +107,7 @@ npm run test:integration
 ```
 
 ### Comandos Específicos
+
 ```bash
 # Testes de um arquivo específico
 npm test -- --testPathPattern=login-form.test.tsx
@@ -116,6 +124,7 @@ npm run test:coverage -- --coverageReporters=text-lcov
 ## 🏗️ Estrutura de Testes
 
 ### Backend (NestJS)
+
 ```
 backend/
 ├── src/
@@ -132,6 +141,7 @@ backend/
 ```
 
 ### Frontend (React)
+
 ```
 frontend/
 ├── src/
@@ -152,6 +162,7 @@ frontend/
 ## 📝 Padrões de Teste
 
 ### 1. Nomenclatura
+
 ```typescript
 // ✅ Correto
 describe('LoginForm', () => {
@@ -173,6 +184,7 @@ describe('LoginForm', () => {
 ```
 
 ### 2. Estrutura AAA (Arrange, Act, Assert)
+
 ```typescript
 describe('RegisterUserUseCase', () => {
   it('should register user successfully', async () => {
@@ -197,6 +209,7 @@ describe('RegisterUserUseCase', () => {
 ```
 
 ### 3. Mocks e Stubs
+
 ```typescript
 // ✅ Correto - Mock específico
 const mockAuthService = {
@@ -213,18 +226,21 @@ const mockAuthService = jest.fn();
 ## 🎯 Tipos de Teste
 
 ### 1. Testes Unitários
+
 - **O que testar**: Funções, classes, métodos isolados
 - **Cobertura**: 100% das funções críticas
 - **Velocidade**: Rápidos (< 1 segundo cada)
 - **Isolamento**: Sem dependências externas
 
 ### 2. Testes de Integração
+
 - **O que testar**: Interação entre módulos
 - **Cobertura**: Fluxos principais
 - **Velocidade**: Médios (< 5 segundos cada)
 - **Isolamento**: Com dependências controladas
 
 ### 3. Testes E2E (Futuro)
+
 - **O que testar**: Fluxos completos do usuário
 - **Cobertura**: Cenários críticos
 - **Velocidade**: Lentos (< 30 segundos cada)
@@ -235,6 +251,7 @@ const mockAuthService = jest.fn();
 ## 📈 Métricas de Qualidade
 
 ### Cobertura de Código
+
 ```bash
 # Verificar cobertura
 npm run test:coverage
@@ -247,6 +264,7 @@ All files |   85.71 |    83.33 |   87.50 |   85.71 |
 ```
 
 ### Qualidade dos Testes
+
 - **Testes devem ser legíveis**
 - **Testes devem ser rápidos**
 - **Testes devem ser determinísticos**
@@ -257,6 +275,7 @@ All files |   85.71 |    83.33 |   87.50 |   85.71 |
 ## 🚨 Cenários de Falha
 
 ### 1. Testes Quebrados
+
 ```bash
 # Se testes quebram, NÃO continue
 npm test
@@ -267,6 +286,7 @@ npm test
 ```
 
 ### 2. Cobertura Baixa
+
 ```bash
 # Se cobertura está baixa
 npm run test:coverage
@@ -277,6 +297,7 @@ npm run test:coverage
 ```
 
 ### 3. Testes Lentos
+
 ```bash
 # Se testes estão lentos
 npm test
@@ -291,6 +312,7 @@ npm test
 ## 🔧 Configuração de Testes
 
 ### Jest Configuration (Backend)
+
 ```javascript
 // jest.config.js
 module.exports = {
@@ -314,6 +336,7 @@ module.exports = {
 ```
 
 ### Jest Configuration (Frontend)
+
 ```javascript
 // jest.config.js
 module.exports = {
@@ -341,11 +364,13 @@ module.exports = {
 ## 📚 Recursos de Aprendizado
 
 ### Documentação
+
 - [Jest Documentation](https://jestjs.io/docs/getting-started)
 - [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
 - [NestJS Testing](https://docs.nestjs.com/fundamentals/testing)
 
 ### Boas Práticas
+
 - **Teste comportamento, não implementação**
 - **Use descrições claras**
 - **Mantenha testes simples**
@@ -356,6 +381,7 @@ module.exports = {
 ## ✅ Checklist de Qualidade
 
 ### Antes de Cada Commit
+
 - [ ] **Lint**: `npm run lint` sem erros
 - [ ] **Build**: `npm run build` sem erros
 - [ ] **Testes**: `npm run test` - todos passando
@@ -363,11 +389,13 @@ module.exports = {
 - [ ] **Dev**: `npm run dev` roda sem problemas
 
 ### Antes de Cada Push
+
 - [ ] **Testes**: `npm run test` - todos passando
 - [ ] **Cobertura**: `npm run test:coverage` - acima de 80%
 - [ ] **Integração**: `npm run test:integration` - todos passando
 
 ### Antes de Cada Merge
+
 - [ ] **Testes**: `npm run test` - todos passando
 - [ ] **Cobertura**: `npm run test:coverage` - acima de 80%
 - [ ] **Qualidade**: Revisar qualidade dos testes
@@ -380,4 +408,4 @@ module.exports = {
 
 **Última atualização**: Novembro 2025  
 **Versão**: 1.0.0  
-**Status**: ✅ Implementado e Ativo 
+**Status**: ✅ Implementado e Ativo

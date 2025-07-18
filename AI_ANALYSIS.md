@@ -21,7 +21,7 @@ Analisar imagens de personagens usando Inteligência Artificial e gerar fichas d
 
 ### Clean Architecture
 
-```
+```text
 Domain Layer
 ├── Entities
 │   └── Character (regras de negócio)
@@ -373,7 +373,7 @@ npm install openai
 
 **Headers**:
 
-```
+```http
 Authorization: Bearer <token>
 Content-Type: application/json
 ```
