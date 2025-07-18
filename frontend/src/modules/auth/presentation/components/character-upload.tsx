@@ -9,11 +9,6 @@ import {
   TextField,
   AppBar,
   Toolbar,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
 } from '@mui/material';
 import { CloudUpload, Edit, Save, Logout } from '@mui/icons-material';
 import { useAuth } from '../../infrastructure/context/auth-context';
