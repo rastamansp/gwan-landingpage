@@ -43,9 +43,7 @@ async function bootstrap() {
   await app.listen(port, host);
 
   console.log(`🚀 Application is running on: http://${host}:${port}`);
-  console.log(
-    `📚 API Documentation available at: http://${host}:${port}/api`
-  );
+  console.log(`📚 API Documentation available at: http://${host}:${port}/api`);
 }
 
 bootstrap();

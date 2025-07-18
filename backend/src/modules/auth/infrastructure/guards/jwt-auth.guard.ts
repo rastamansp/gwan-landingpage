@@ -25,7 +25,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest(err: any, user: any, info: any, context: ExecutionContext) {
+  handleRequest(
+    err: any,
+    user: any,
+    info: any /* context: ExecutionContext */
+  ) {
     this.logger.log(`🔒 JwtAuthGuard - handleRequest called`);
     this.logger.log(`🔒 JwtAuthGuard - Error: ${err ? err.message : 'None'}`);
     this.logger.log(`🔒 JwtAuthGuard - User: ${user ? 'Present' : 'Missing'}`);
