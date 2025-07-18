@@ -10,7 +10,7 @@ services:
       - REACT_APP_API_URL=https://video.gwan.com.br/api
       - NODE_ENV=production
     networks:
-      - gwan-network
+      - gwan
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.gwan-frontend.rule=Host(`video.gwan.com.br`)"
@@ -38,7 +38,7 @@ services:
     depends_on:
       - postgres
     networks:
-      - gwan-network
+      - gwan
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.gwan-backend.rule=Host(`video.gwan.com.br`) && PathPrefix(`/api`)"
@@ -59,7 +59,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - gwan-network
+      - gwan
 
   minio:
     image: minio/minio:latest
@@ -72,7 +72,7 @@ services:
     volumes:
       - minio_data:/data
     networks:
-      - gwan-network
+      - gwan
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.gwan-minio.rule=Host(`video.gwan.com.br`) && PathPrefix(`/minio`)"
@@ -87,10 +87,10 @@ services:
     container_name: gwan-redis
     restart: unless-stopped
     networks:
-      - gwan-network
+      - gwan
 
 networks:
-  gwan-network:
+  gwan:
     external: true
 
 volumes:
