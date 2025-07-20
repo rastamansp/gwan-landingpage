@@ -27,6 +27,7 @@ import { CharacterEntity } from './infrastructure/entities/character.entity';
 
 // Services
 import { NotificationService } from './infrastructure/services/notification.service';
+import { EmailService } from './infrastructure/services/email.service';
 import { FileUploadService } from './infrastructure/services/file-upload.service';
 import { ExternalApiService } from './infrastructure/services/external-api.service';
 import { JwtAuthService } from './infrastructure/services/jwt-auth.service';
@@ -94,6 +95,7 @@ import { jwtConfig } from '../../core/config/jwt.config';
       provide: NOTIFICATION_SERVICE,
       useClass: NotificationService,
     },
+    EmailService,
     {
       provide: FILE_UPLOAD_SERVICE,
       useClass: FileUploadService,
@@ -122,4 +124,4 @@ import { jwtConfig } from '../../core/config/jwt.config';
     JwtAuthService,
   ],
 })
-export class AuthModule {}
+export class AuthModule { }

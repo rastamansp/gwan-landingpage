@@ -1,9 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { INotificationService } from '../../domain/services/notification-service.interface';
+import { EmailService } from './email.service';
 
 @Injectable()
 export class NotificationService implements INotificationService {
   private readonly logger = new Logger(NotificationService.name);
+
+  constructor(private readonly emailService: EmailService) { }
 
   async sendActivationCode(
     email: string,
@@ -11,17 +14,16 @@ export class NotificationService implements INotificationService {
     code: string
   ): Promise<void> {
     try {
-      // Em produção, aqui seria integração com serviços como:
-      // - SendGrid para email
-      // - Twilio para SMS
-      // - AWS SES para email
-
       this.logger.log(
         `Sending activation code ${code} to email: ${email} and phone: ${phone}`
       );
 
-      // Simulação de envio
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Enviar email de ativação
+      const emailSent = await this.emailService.sendActivationCode(email, code, 'Usuário');
+
+      if (!emailSent) {
+        throw new Error('Failed to send activation email');
+      }
 
       this.logger.log(
         `Activation code sent successfully to ${email} and ${phone}`
@@ -38,14 +40,22 @@ export class NotificationService implements INotificationService {
     type: 'email' | 'whatsapp'
   ): Promise<{ success: boolean; message?: string }> {
     try {
-      // Em produção, aqui seria integração com serviços como:
-      // - SendGrid para email
-      // - Twilio para WhatsApp/SMS
-
       this.logger.log(`Sending login code ${code} to ${type}: ${contact}`);
 
-      // Simulação de envio
-      await new Promise(resolve => setTimeout(resolve, 100));
+      if (type === 'email') {
+        // Enviar email de login
+        const emailSent = await this.emailService.sendLoginCode(contact, code, 'Usuário');
+
+        if (!emailSent) {
+          return {
+            success: false,
+            message: 'Erro ao enviar email de login',
+          };
+        }
+      } else {
+        // Para WhatsApp, manter a simulação por enquanto
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
 
       this.logger.log(`Login code sent successfully to ${type}: ${contact}`);
 
