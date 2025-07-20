@@ -79,9 +79,10 @@ COPY backend/package*.json ./backend/
 # Copia package.json do shared (se existir)
 COPY shared/package*.json ./shared/
 
-# Instala apenas dependências de produção
+# Instala dependências de produção incluindo swagger-ui-dist
 RUN echo "=== Instalando dependências de produção ===" && \
-    npm install --workspace=backend --omit=dev
+    npm install --workspace=backend --omit=dev && \
+    npm install --workspace=backend swagger-ui-dist
 
 # Copia o build do stage anterior
 COPY --from=builder /app/backend/dist ./backend/dist
