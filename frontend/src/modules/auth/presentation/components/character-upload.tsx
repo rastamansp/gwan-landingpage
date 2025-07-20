@@ -251,9 +251,14 @@ export const CharacterUpload: React.FC<CharacterUploadProps> = ({ onUploadSucces
       {/* Header com botão de logout */}
       <AppBar position="static" sx={{ mb: 3 }}>
         <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Gwan - Upload de Personagem
-          </Typography>
+          <Box sx={{ flexGrow: 1 }}>
+            <Typography variant="h6" component="div">
+              Gwan Landing Page
+            </Typography>
+            <Typography variant="caption" color="inherit" sx={{ opacity: 0.8 }}>
+              v1.0.0 - Análise de Personagens com IA
+            </Typography>
+          </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Typography variant="body2" color="inherit">
               Olá, {user?.name}!
