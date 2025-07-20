@@ -10,10 +10,21 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
-  // Configuração de CORS
+  // Configuração de CORS para múltiplos domínios
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'https://video.gwan.com.br',
+    'https://www.video.gwan.com.br',
+    'https://gwan.com.br',
+    'https://www.gwan.com.br',
+    process.env.FRONTEND_URL,
+  ].filter(Boolean); // Remove valores undefined/null
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: allowedOrigins,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   });
 
   // Configuração de validação global
@@ -44,6 +55,7 @@ async function bootstrap() {
 
   console.log(`🚀 Application is running on: http://${host}:${port}`);
   console.log(`📚 API Documentation available at: http://${host}:${port}/api`);
+  console.log(`🌍 CORS enabled for origins: ${allowedOrigins.join(', ')}`);
 }
 
 bootstrap();
