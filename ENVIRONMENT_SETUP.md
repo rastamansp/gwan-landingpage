@@ -1,186 +1,338 @@
-# 🔧 Configuração de Variáveis de Ambiente
+# 🚀 Setup do Ambiente de Desenvolvimento - Gwan Landing Page
 
-Este documento explica como configurar as variáveis de ambiente para o projeto Gwan Landing Page.
+## 📋 Checklist Rápido
 
-## 📋 Visão Geral
+### ✅ Pré-requisitos
 
-O projeto usa um arquivo `.env` centralizado na raiz que contém todas as variáveis necessárias para:
+- [ ] Node.js 18+ instalado
+- [ ] npm ou yarn instalado
+- [ ] Git instalado
+- [ ] Docker e Docker Compose instalados (opcional)
+- [ ] PostgreSQL instalado ou Docker configurado
+- [ ] Conta OpenAI com API key
 
-- Backend (NestJS)
-- Frontend (React)
-- Banco de dados (PostgreSQL)
-- Cache (Redis)
-- Storage (MinIO)
-- IA (OpenAI)
+### 🔧 Setup Inicial
 
-## 🚀 Configuração Rápida
-
-### 1. Usar Script Automático (Recomendado)
+#### 1. Clone do Repositório
 
 ```bash
-./scripts/setup-env.sh
+git clone <seu-repositorio>
+cd gwan-landingpage
 ```
 
-O script irá:
-
-- Fazer backup do `.env` existente (se houver)
-- Copiar `.env.example` para `.env`
-- Verificar configurações críticas
-- Mostrar instruções de configuração
-
-### 2. Configuração Manual
+#### 2. Instalação de Dependências
 
 ```bash
-# Copiar arquivo de exemplo
-cp .env.example .env
+# Dependências root
+npm install
 
-# Editar com seu editor preferido
-nano .env
-# ou
-code .env
+# Dependências backend
+cd backend
+npm install
+
+# Dependências frontend
+cd ../frontend
+npm install
+
+# Dependências shared
+cd ../shared
+npm install
 ```
 
-## 🔑 Variáveis Obrigatórias
+#### 3. Configuração de Variáveis de Ambiente
 
-### OpenAI API Key
+**Backend (.env)**
 
-```bash
-OPENAI_API_KEY=sk-proj-sua-chave-aqui
-```
+```env
+# Database
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USERNAME=postgres
+DATABASE_PASSWORD=postgres
+DATABASE_NAME=gwan_landing_page
 
-**Onde obter**: [OpenAI Platform](https://platform.openai.com/api-keys)
-**Uso**: Análise de personagens com GPT-4 Vision
+# JWT
+JWT_SECRET=sua-chave-secreta-jwt-aqui
+JWT_EXPIRES_IN=7d
 
-### JWT Secret
+# OpenAI
+OPENAI_API_KEY=sua-openai-api-key-aqui
 
-```bash
-JWT_SECRET=sua-chave-secreta-aqui
-```
-
-**Onde obter**: Gere uma string aleatória
-**Uso**: Autenticação e sessões
-
-### MinIO Credentials
-
-```bash
-MINIO_ACCESS_KEY=sua-access-key
-MINIO_SECRET_KEY=sua-secret-key
-```
-
-**Onde obter**: Configurado automaticamente no Docker
-**Uso**: Armazenamento de imagens
-
-## 📧 Variáveis de Email (Opcionais)
-
-```bash
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
+# SMTP (Email)
 SMTP_USER=seu-email@gmail.com
-SMTP_PASS=sua-senha
-```
+SMTP_PASSWORD=sua-senha-de-app
+SMTP_FROM_NAME=GWAN
+SMTP_FROM_EMAIL=noreply@gwan.com.br
 
-**Uso**: Envio de códigos de ativação/login por email
+# MinIO (Storage)
+MINIO_ENDPOINT=localhost
+MINIO_PORT=9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_BUCKET_NAME=gwan-uploads
 
-## 📱 Variáveis WhatsApp (Opcionais)
-
-```bash
-WHATSAPP_API_URL=sua-api-url
-WHATSAPP_API_TOKEN=seu-token
-```
-
-**Uso**: Envio de códigos de ativação/login por WhatsApp
-
-## 🗄️ Configurações de Banco
-
-```bash
-DATABASE_URL=postgresql://postgres:pazdedeus@db:5432/gwan_vector
-POSTGRES_DB=gwan_vector
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=pazdedeus
-```
-
-**Nota**: Estas são configuradas automaticamente no Docker
-
-## 🔧 Configurações do Servidor
-
-```bash
-PORT=3001
-NODE_ENV=development
+# Frontend URL
 FRONTEND_URL=http://localhost:3000
 ```
 
-## 🗂️ Configurações de Upload
+#### 4. Configuração do Banco de Dados
+
+**Opção A: Docker (Recomendado)**
 
 ```bash
-UPLOAD_PATH=./uploads
-MAX_FILE_SIZE=5242880
+# Iniciar PostgreSQL
+docker-compose up -d postgres
+
+# Aguardar 30 segundos e verificar se está rodando
+docker-compose ps
 ```
 
-## 🔍 Verificação de Configuração
-
-Execute o script para verificar se todas as variáveis críticas estão configuradas:
+**Opção B: PostgreSQL Local**
 
 ```bash
-./scripts/setup-env.sh
+# Criar banco de dados
+createdb gwan_landing_page
 ```
 
-O script irá alertar sobre variáveis que precisam ser configuradas.
+#### 5. Configuração do MinIO (Storage)
 
-## 🐳 Configuração para Docker
-
-### Desenvolvimento
+**Opção A: Docker (Recomendado)**
 
 ```bash
-# Usar docker-compose.yml
+# Iniciar MinIO
+docker-compose up -d minio
+
+# Verificar se está rodando
+docker-compose ps
+```
+
+**Opção B: MinIO Local**
+
+- Baixar e instalar MinIO Server
+- Configurar bucket `gwan-uploads`
+
+### 🚀 Iniciando o Desenvolvimento
+
+#### Terminal 1 - Backend
+
+```bash
+cd backend
+npm run start:dev
+```
+
+#### Terminal 2 - Frontend
+
+```bash
+cd frontend
+npm start
+```
+
+#### Terminal 3 - Verificações (Opcional)
+
+```bash
+# Verificar se o banco está rodando
+docker-compose ps
+
+# Verificar logs do backend
+docker-compose logs backend
+```
+
+### 🧪 Testes Obrigatórios
+
+#### Antes de Começar a Desenvolver
+
+```bash
+# Backend
+cd backend
+npm run test
+npm run lint
+
+# Frontend
+cd ../frontend
+npm run test
+npm run lint
+
+# Build test
+npm run build
+```
+
+#### Durante o Desenvolvimento
+
+```bash
+# Sempre antes de commitar
+npm run lint
+npm run test
+npm run build
+```
+
+### 🔍 Verificações de Funcionamento
+
+#### 1. Backend (<http://localhost:3001>)
+
+- [ ] Health check: `GET /health`
+- [ ] Swagger docs: `GET /api`
+
+#### 2. Frontend (<http://localhost:3000>)
+
+- [ ] Landing page carrega
+- [ ] Formulário de login funciona
+- [ ] Cadastro funciona
+- [ ] Upload de imagem funciona
+
+#### 3. Banco de Dados
+
+- [ ] Conexão estabelecida
+- [ ] Tabelas criadas automaticamente
+- [ ] Migrations funcionando
+
+#### 4. MinIO
+
+- [ ] Bucket `gwan-uploads` criado
+- [ ] Upload de arquivos funcionando
+- [ ] URLs de acesso funcionando
+
+### 🐛 Troubleshooting Comum
+
+#### Problema: Backend não inicia
+
+```bash
+# Verificar se as variáveis de ambiente estão corretas
+cd backend
+cat .env
+
+# Verificar se o banco está rodando
+docker-compose ps postgres
+
+# Verificar logs
+docker-compose logs backend
+```
+
+#### Problema: Frontend não conecta com Backend
+
+```bash
+# Verificar se o backend está rodando na porta 3001
+curl http://localhost:3001/health
+
+# Verificar configuração do frontend
+cd frontend
+cat src/config/api.ts
+```
+
+#### Problema: Upload não funciona
+
+```bash
+# Verificar se o MinIO está rodando
+docker-compose ps minio
+
+# Verificar se o bucket existe
+# Acessar http://localhost:9000 (usuário: minioadmin, senha: minioadmin)
+```
+
+#### Problema: OpenAI não funciona
+
+```bash
+# Verificar se a API key está correta
+cd backend
+echo $OPENAI_API_KEY
+
+# Testar com curl
+curl -H "Authorization: Bearer sua-api-key" https://api.openai.com/v1/models
+```
+
+### 📁 Estrutura de Arquivos Importantes
+
+```
+gwan-landingpage/
+├── backend/
+│   ├── .env                    # Variáveis de ambiente
+│   ├── src/
+│   │   ├── modules/auth/       # Módulo de autenticação
+│   │   ├── core/config/        # Configurações
+│   │   └── main.ts            # Entry point
+│   └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── modules/auth/       # Componentes de auth
+│   │   ├── config/api.ts       # Configuração da API
+│   │   └── App.tsx            # Componente principal
+│   └── package.json
+├── shared/
+│   └── src/                   # Código compartilhado
+├── docker-compose.yml          # Serviços Docker
+└── package.json               # Scripts root
+```
+
+### 🔄 Comandos Úteis
+
+#### Desenvolvimento
+
+```bash
+# Iniciar tudo
+npm run dev
+
+# Apenas backend
+cd backend && npm run start:dev
+
+# Apenas frontend
+cd frontend && npm start
+
+# Testes
+npm run test
+npm run test:coverage
+```
+
+#### Docker
+
+```bash
+# Iniciar serviços
 docker-compose up -d
+
+# Parar serviços
+docker-compose down
+
+# Ver logs
+docker-compose logs -f
+
+# Rebuild
+docker-compose up -d --build
 ```
 
-### Produção
+#### Git
 
 ```bash
-# Usar docker-compose.prod.yml
-docker-compose -f docker-compose.prod.yml up -d
+# Antes de commitar
+npm run lint
+npm run test
+npm run build
+
+# Commit
+git add .
+git commit -m "feat: descrição da mudança"
+
+# Push
+git push origin main
 ```
 
-## 🔒 Segurança
+### 📞 Suporte
 
-### ⚠️ Importante
+Se encontrar problemas:
 
-1. **NUNCA** commite o arquivo `.env`
-2. **SEMPRE** use `.env.example` como template
-3. **MUDE** as senhas padrão em produção
-4. **PROTEJA** suas chaves de API
+1. **Verificar logs**: `docker-compose logs`
+2. **Reiniciar serviços**: `docker-compose restart`
+3. **Limpar cache**: `npm run clean`
+4. **Reinstalar dependências**: `rm -rf node_modules && npm install`
 
-### 🔐 Boas Práticas
+### 🎯 Próximos Passos
 
-- Use senhas fortes para JWT_SECRET
-- Rotacione chaves de API regularmente
-- Use variáveis de ambiente diferentes para dev/prod
-- Monitore logs de acesso
+Após o setup:
 
-## 🚨 Troubleshooting
+1. **Testar autenticação**: Cadastrar e fazer login
+2. **Testar upload**: Fazer upload de uma imagem
+3. **Testar IA**: Processar uma imagem com IA
+4. **Verificar edição**: Editar análise gerada
+5. **Testar responsividade**: Verificar em diferentes dispositivos
 
-### Problema: "Cannot connect to database"
+---
 
-**Solução**: Verifique se `DATABASE_URL` está correto
-
-### Problema: "OpenAI API error"
-
-**Solução**: Verifique se `OPENAI_API_KEY` está válida
-
-### Problema: "JWT verification failed"
-
-**Solução**: Verifique se `JWT_SECRET` está configurado
-
-### Problema: "MinIO connection failed"
-
-**Solução**: Verifique se `MINIO_ACCESS_KEY` e `MINIO_SECRET_KEY` estão corretos
-
-## 📞 Suporte
-
-Se tiver problemas com configuração:
-
-1. Execute `./scripts/setup-env.sh`
-2. Verifique se todas as variáveis críticas estão configuradas
-3. Teste com `docker-compose up -d`
-4. Verifique logs com `docker-compose logs -f`
+**Status**: ✅ Ambiente configurado e pronto para desenvolvimento
+**Última atualização**: $(date)
