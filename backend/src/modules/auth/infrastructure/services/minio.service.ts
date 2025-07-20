@@ -129,7 +129,9 @@ export class MinioService {
       );
 
       // Gerar URL pública
-      const fileUrl = `https://${this.configService.get<string>('MINIO_ENDPOINT')}/${bucketName}/${fileName}`;
+      const minioEndpoint = this.configService.get<string>('MINIO_ENDPOINT');
+      const minioDomain = this.configService.get<string>('MINIO_DOMAIN') || minioEndpoint;
+      const fileUrl = `https://${minioDomain}/${bucketName}/${fileName}`;
       this.logger.log(`✅ [MinioService] Upload concluído com sucesso!`);
       this.logger.log(`🔗 [MinioService] URL gerada: ${fileUrl}`);
       return fileUrl;
