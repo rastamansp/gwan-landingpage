@@ -1,6 +1,6 @@
 {
     "name": "gwan-landingpage",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Gwan Landing Page - Monorepo com React Frontend e NestJS Backend",
     "private": true,
     "workspaces": [
