@@ -1,5 +1,8 @@
 # Padrões de API REST - Gwan Landing Page
 
+> **IMPORTANTE**: Este projeto é um **MONOREPO** com frontend, backend e código compartilhado.
+> Para regras completas do monorepo, consulte: `MONOREPO_RULES.md`
+
 ## Estrutura Padrão de Resposta
 
 ### Sucesso (200)

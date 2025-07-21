@@ -1,0 +1,847 @@
+# Regras do Cursor - Gwan Landing Page (Monorepo)
+
+## Estrutura do Monorepo
+
+### Visão Geral do Projeto
+
+Este é um **monorepo** que contém:
+
+- **Frontend**: React + TypeScript + Material-UI
+- **Backend**: NestJS + TypeScript + PostgreSQL
+- **Shared**: Código compartilhado entre frontend e backend
+- **Docker**: Configuração completa com PostgreSQL, Redis, MinIO
+
+### Estrutura de Workspaces
+
+```
+gwan-landingpage/
+├── frontend/          # React App (@gwan/frontend)
+├── backend/           # NestJS API (@gwan/backend)
+├── shared/            # Código compartilhado (@gwan/shared)
+├── docker/            # Configurações Docker
+├── scripts/           # Scripts de automação
+└── package.json       # Root workspace
+```
+
+### Workspaces NPM
+
+```json
+{
+  "workspaces": [
+    "frontend",
+    "backend", 
+    "shared"
+  ]
+}
+```
+
+### Comandos de Desenvolvimento
+
+```bash
+# Desenvolvimento completo
+npm run dev                    # Frontend + Backend simultaneamente
+
+# Desenvolvimento individual
+npm run dev:frontend          # Apenas frontend
+npm run dev:backend           # Apenas backend
+
+# Build completo
+npm run build                 # Frontend + Backend
+
+# Testes completos
+npm run test                  # Frontend + Backend
+
+# Lint completo
+npm run lint                  # Frontend + Backend
+
+# Instalação completa
+npm run install:all          # Instala todas as dependências
+```
+
+### Dependências Compartilhadas
+
+- **TypeScript**: Versão 4.9.5 em todos os workspaces
+- **React**: Versão 18.3.1 (resolvida no root)
+- **Axios**: Para requisições HTTP
+- **Class-validator/transformer**: Para validação de dados
+
+### Docker Compose
+
+```yaml
+services:
+  db:          # PostgreSQL
+  redis:       # Cache
+  minio:       # Object Storage
+  backend:     # NestJS API
+  frontend:    # React App
+```
+
+## Princípios Fundamentais
+
+### SOLID Principles
+
+- **S**ingle Responsibility: Cada classe/função deve ter uma única responsabilidade
+- **O**pen/Closed: Aberto para extensão, fechado para modificação
+- **L**iskov Substitution: Subtipos devem ser substituíveis por seus tipos base
+- **I**nterface Segregation: Interfaces específicas são melhores que interfaces genéricas
+- **D**ependency Inversion: Dependa de abstrações, não de implementações concretas
+
+### Clean Architecture
+
+- **Entities**: Regras de negócio centrais (independentes de frameworks)
+- **Use Cases**: Casos de uso da aplicação (orquestração de regras de negócio)
+- **Interface Adapters**: Controllers, Gateways, Presenters
+- **Frameworks & Drivers**: UI, Database, External Interfaces
+
+### Use Case Pattern
+
+- Cada funcionalidade deve ter um Use Case dedicado
+- Use Cases devem ser independentes de frameworks
+- Input/Output DTOs para cada Use Case
+- Tratamento de erros específicos por Use Case
+
+## Estrutura de Módulos
+
+### Frontend (React)
+
+```
+frontend/src/
+├── modules/                   # Módulos da aplicação
+│   ├── auth/                  # Módulo de autenticação
+│   │   ├── domain/            # Entidades e regras de negócio
+│   │   ├── application/       # Use Cases
+│   │   ├── infrastructure/    # Implementações concretas
+│   │   └── presentation/      # Componentes React
+│   ├── contact/               # Módulo de contato
+│   │   ├── domain/
+│   │   ├── application/
+│   │   ├── infrastructure/
+│   │   └── presentation/
+│   └── portfolio/             # Módulo de portfólio
+│       ├── domain/
+│       ├── application/
+│       ├── infrastructure/
+│       └── presentation/
+├── shared/                    # Código compartilhado
+│   ├── domain/                # Entidades compartilhadas
+│   ├── infrastructure/        # Implementações compartilhadas
+│   └── presentation/          # Componentes compartilhados
+└── core/                      # Configurações centrais
+    ├── config/
+    ├── utils/
+    └── types/
+```
+
+### Backend (NestJS)
+
+```
+backend/src/
+├── modules/                  # Módulos da aplicação
+│   ├── auth/                 # Módulo de autenticação
+│   │   ├── domain/           # Entidades e regras de negócio
+│   │   ├── application/      # Use Cases
+│   │   ├── infrastructure/   # Repositórios e serviços externos
+│   │   └── presentation/     # Controllers e DTOs
+│   ├── contact/              # Módulo de contato
+│   │   ├── domain/
+│   │   ├── application/
+│   │   ├── infrastructure/
+│   │   └── presentation/
+│   └── portfolio/            # Módulo de portfólio
+│       ├── domain/
+│       ├── application/
+│       ├── infrastructure/
+│       └── presentation/
+├── shared/                   # Código compartilhado
+│   ├── domain/
+│   ├── infrastructure/
+│   └── presentation/
+└── core/                     # Configurações centrais
+    ├── config/
+    ├── utils/
+    └── types/
+```
+
+### Shared (Código Compartilhado)
+
+```
+shared/src/
+├── constants/                # Constantes compartilhadas
+│   ├── api.ts               # URLs e endpoints
+│   ├── app.ts               # Configurações da aplicação
+│   └── validation.ts        # Regras de validação
+├── types/                    # Tipos TypeScript compartilhados
+└── utils/                    # Utilitários compartilhados
+    ├── date.ts              # Manipulação de datas
+    ├── string.ts            # Manipulação de strings
+    └── validation.ts        # Funções de validação
+```
+
+## Regras de Implementação
+
+### 1. Domain Layer (Entidades e Regras de Negócio)
+
+```typescript
+// ✅ Correto - Entidade com regras de negócio
+export class Contact {
+  constructor(
+    private readonly id: string,
+    private readonly name: string,
+    private readonly email: string,
+    private readonly message: string,
+    private readonly createdAt: Date
+  ) {
+    this.validateEmail(email);
+    this.validateMessage(message);
+  }
+
+  private validateEmail(email: string): void {
+    if (!email.includes('@')) {
+      throw new Error('Invalid email format');
+    }
+  }
+
+  private validateMessage(message: string): void {
+    if (message.length < 10) {
+      throw new Error('Message too short');
+    }
+  }
+
+  // Getters para acessar propriedades
+  getEmail(): string { return this.email; }
+  getName(): string { return this.name; }
+}
+```
+
+### 2. Application Layer (Use Cases)
+
+```typescript
+// ✅ Correto - Use Case com responsabilidade única
+export class CreateContactUseCase {
+  constructor(
+    private readonly contactRepository: IContactRepository,
+    private readonly emailService: IEmailService
+  ) {}
+
+  async execute(input: CreateContactInput): Promise<CreateContactOutput> {
+    // 1. Validação de entrada
+    this.validateInput(input);
+
+    // 2. Criação da entidade
+    const contact = new Contact(
+      generateId(),
+      input.name,
+      input.email,
+      input.message,
+      new Date()
+    );
+
+    // 3. Persistência
+    await this.contactRepository.save(contact);
+
+    // 4. Notificação
+    await this.emailService.sendNotification(contact);
+
+    return {
+      id: contact.getId(),
+      success: true
+    };
+  }
+
+  private validateInput(input: CreateContactInput): void {
+    if (!input.name || !input.email || !input.message) {
+      throw new Error('Missing required fields');
+    }
+  }
+}
+```
+
+### 3. Infrastructure Layer (Implementações Concretas)
+
+```typescript
+// ✅ Correto - Implementação concreta da interface
+export class ContactRepository implements IContactRepository {
+  constructor(private readonly database: Database) {}
+
+  async save(contact: Contact): Promise<void> {
+    await this.database.contacts.create({
+      id: contact.getId(),
+      name: contact.getName(),
+      email: contact.getEmail(),
+      message: contact.getMessage(),
+      createdAt: contact.getCreatedAt()
+    });
+  }
+
+  async findById(id: string): Promise<Contact | null> {
+    const data = await this.database.contacts.findUnique({ where: { id } });
+    if (!data) return null;
+    
+    return new Contact(
+      data.id,
+      data.name,
+      data.email,
+      data.message,
+      data.createdAt
+    );
+  }
+}
+```
+
+### 4. Presentation Layer (Controllers/Components)
+
+```typescript
+// ✅ Correto - Controller focado apenas em apresentação
+@Controller('contact')
+export class ContactController {
+  constructor(
+    private readonly createContactUseCase: CreateContactUseCase
+  ) {}
+
+  @Post()
+  async createContact(@Body() dto: CreateContactDto): Promise<CreateContactResponse> {
+    try {
+      const result = await this.createContactUseCase.execute({
+        name: dto.name,
+        email: dto.email,
+        message: dto.message
+      });
+
+      return {
+        success: true,
+        data: result
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+}
+```
+
+## Regras de Nomenclatura
+
+### Interfaces
+
+- Prefixo `I` para interfaces: `IContactRepository`
+- Sufixo `UseCase` para casos de uso: `CreateContactUseCase`
+- Sufixo `Service` para serviços: `EmailService`
+- Sufixo `Repository` para repositórios: `ContactRepository`
+
+### Classes
+
+- Nomes descritivos: `Contact`, `CreateContactUseCase`
+- Evitar abreviações: `ContactRepo` ❌, `ContactRepository` ✅
+
+### Arquivos
+
+- PascalCase para classes: `Contact.ts`
+- camelCase para funções/utilitários: `contactUtils.ts`
+- kebab-case para componentes: `contact-form.tsx`
+
+## Regras de Dependências
+
+### Direção das Dependências
+
+```
+Presentation → Application → Domain
+Infrastructure → Application → Domain
+```
+
+### Inversão de Dependência
+
+```typescript
+// ✅ Correto - Dependência de abstração
+export class CreateContactUseCase {
+  constructor(
+    private readonly contactRepository: IContactRepository, // Interface
+    private readonly emailService: IEmailService // Interface
+  ) {}
+}
+
+// ❌ Incorreto - Dependência de implementação concreta
+export class CreateContactUseCase {
+  constructor(
+    private readonly contactRepository: ContactRepository, // Implementação
+    private readonly emailService: EmailService // Implementação
+  ) {}
+}
+```
+
+## Regras de Testes
+
+### Estrutura de Testes
+
+```
+tests/
+├── unit/                     # Testes unitários
+│   ├── domain/
+│   ├── application/
+│   └── infrastructure/
+├── integration/              # Testes de integração
+└── e2e/                      # Testes end-to-end
+```
+
+### Padrão de Testes
+
+```typescript
+// ✅ Correto - Teste focado em comportamento
+describe('CreateContactUseCase', () => {
+  it('should create contact successfully', async () => {
+    // Arrange
+    const mockRepository = createMockRepository();
+    const mockEmailService = createMockEmailService();
+    const useCase = new CreateContactUseCase(mockRepository, mockEmailService);
+    
+    // Act
+    const result = await useCase.execute({
+      name: 'John Doe',
+      email: 'john@example.com',
+      message: 'Hello world'
+    });
+    
+    // Assert
+    expect(result.success).toBe(true);
+    expect(mockRepository.save).toHaveBeenCalled();
+    expect(mockEmailService.sendNotification).toHaveBeenCalled();
+  });
+});
+```
+
+## Regras de Error Handling
+
+### Domain Errors
+
+```typescript
+// ✅ Correto - Erros específicos do domínio
+export class InvalidEmailError extends Error {
+  constructor(email: string) {
+    super(`Invalid email format: ${email}`);
+    this.name = 'InvalidEmailError';
+  }
+}
+
+export class MessageTooShortError extends Error {
+  constructor(minLength: number) {
+    super(`Message must be at least ${minLength} characters`);
+    this.name = 'MessageTooShortError';
+  }
+}
+```
+
+### Use Case Error Handling
+
+```typescript
+// ✅ Correto - Tratamento específico de erros
+export class CreateContactUseCase {
+  async execute(input: CreateContactInput): Promise<CreateContactOutput> {
+    try {
+      // Lógica do use case
+    } catch (error) {
+      if (error instanceof InvalidEmailError) {
+        return { success: false, error: 'Invalid email format' };
+      }
+      if (error instanceof MessageTooShortError) {
+        return { success: false, error: 'Message too short' };
+      }
+      throw error; // Re-throw erros não tratados
+    }
+  }
+}
+```
+
+## Regras de Performance
+
+### Lazy Loading
+
+- Use lazy loading para módulos grandes
+- Implemente code splitting por rota
+- Carregue dados sob demanda
+
+### Caching
+
+- Cache de dados frequentemente acessados
+- Implemente cache de consultas
+- Use React Query para cache no frontend
+
+### Otimizações
+
+- Evite re-renders desnecessários
+- Use React.memo para componentes pesados
+- Implemente virtualização para listas grandes
+
+## Regras de Segurança
+
+### Validação
+
+- Valide todas as entradas no backend
+- Use class-validator para DTOs
+- Sanitize dados antes de persistir
+
+### Autenticação
+
+- Implemente JWT com refresh tokens
+- Use bcrypt para senhas
+- Implemente rate limiting
+
+### Autorização
+
+- Use guards para proteger rotas
+- Implemente role-based access control
+- Valide permissões em use cases
+
+## Regras de Documentação
+
+### Comentários
+
+- Documente regras de negócio complexas
+- Explique algoritmos não óbvios
+- Documente APIs públicas
+
+### README
+
+- Mantenha README atualizado
+- Documente setup do projeto
+- Inclua exemplos de uso
+
+### API Documentation
+
+- Use Swagger/OpenAPI
+- Documente todos os endpoints
+- Inclua exemplos de request/response
+
+## 🔧 Padrões de API REST Obrigatórios
+
+### Estrutura Padrão de Resposta
+
+**TODAS as APIs devem seguir estes padrões obrigatórios:**
+
+#### Sucesso (200)
+
+```json
+{
+  "success": true,
+  "message": "Operação realizada com sucesso",
+  "data": {
+    // Dados específicos da operação
+  }
+}
+```
+
+#### Erro (400, 401, 403, 404, 500)
+
+```json
+{
+  "success": false,
+  "message": "Descrição do erro",
+  "error": "Código do erro (opcional)"
+}
+```
+
+### Campos Padronizados Obrigatórios
+
+#### Usuário
+
+- **SEMPRE** usar `user` (não `userData`, `userInfo`, etc.)
+- **Estrutura consistente**:
+
+```json
+{
+  "id": "string",
+  "name": "string", 
+  "email": "string",
+  "phone": "string",
+  "status": "string"
+}
+```
+
+#### Autenticação
+
+- **SEMPRE** usar `token` (não `jwt`, `accessToken`, etc.)
+- **SEMPRE** usar `userId` (não `id`, `user_id`, etc.)
+- **SEMPRE** usar `activationCode` e `loginCode`
+
+#### Upload
+
+- **SEMPRE** usar `imageUrl` (não `url`, `image_url`, etc.)
+
+### Status Codes HTTP Padronizados
+
+- **200**: Sucesso
+- **201**: Criado com sucesso  
+- **400**: Erro de validação/requisição
+- **401**: Não autorizado
+- **403**: Acesso negado
+- **404**: Recurso não encontrado
+- **500**: Erro interno do servidor
+
+### Validação de Entrada Padronizada
+
+#### DTOs Padronizados
+
+```typescript
+export class RegisterUserDto {
+  @IsString()
+  name: string;
+
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  phone: string;
+}
+```
+
+#### Validação de Arquivos
+
+```typescript
+export class UploadFileDto {
+  @IsFile()
+  @MaxFileSize(20 * 1024 * 1024) // 20MB
+  @FileType(['image/jpeg', 'image/png', 'image/gif'])
+  file: Express.Multer.File;
+}
+```
+
+### Documentação Swagger Padronizada
+
+```typescript
+@ApiOperation({ summary: 'Descrição da operação' })
+@ApiResponse({
+  status: 200,
+  description: 'Sucesso',
+  schema: {
+    type: 'object',
+    properties: {
+      success: { type: 'boolean', example: true },
+      message: { type: 'string', example: 'Operação realizada' },
+      // outros campos...
+    },
+  },
+})
+@ApiResponse({
+  status: 400,
+  description: 'Erro de validação',
+  schema: {
+    type: 'object',
+    properties: {
+      success: { type: 'boolean', example: false },
+      message: { type: 'string', example: 'Erro de validação' },
+    },
+  },
+})
+```
+
+### Logs Padronizados
+
+```typescript
+this.logger.log(`Operação para usuário: ${userId}`);
+this.logger.error(`Erro na operação: ${error.message}`);
+```
+
+### Segurança Padronizada
+
+#### Headers Obrigatórios
+
+- **Authorization**: `Bearer <token>` para rotas protegidas
+- **Content-Type**: `application/json` para JSON
+- **Content-Type**: `multipart/form-data` para uploads
+
+#### Validação de Token
+
+- **SEMPRE** validar token em rotas protegidas
+- **SEMPRE** retornar 401 para tokens inválidos
+- **SEMPRE** incluir informações do usuário no token JWT
+
+### Performance Padronizada
+
+#### Cache
+
+- **SEMPRE** usar cache para dados frequentemente acessados
+- **SEMPRE** invalidar cache quando dados são modificados
+
+#### Rate Limiting
+
+- **SEMPRE** implementar rate limiting em endpoints sensíveis
+- **SEMPRE** retornar 429 quando limite é excedido
+
+### Monitoramento Padronizado
+
+#### Métricas
+
+- **SEMPRE** registrar tempo de resposta
+- **SEMPRE** registrar taxa de erro
+- **SEMPRE** registrar uso de recursos
+
+#### Alertas
+
+- **SEMPRE** configurar alertas para erros críticos
+- **SEMPRE** configurar alertas para performance degradada
+
+### Exemplos de Endpoints Padronizados
+
+#### Autenticação
+
+```typescript
+// POST /auth/register
+{
+  "success": true,
+  "userId": "user_123",
+  "message": "Usuário registrado com sucesso",
+  "activationCode": "123456"
+}
+
+// POST /auth/activate/:userId
+{
+  "success": true,
+  "message": "Usuário ativado com sucesso",
+  "token": "jwt-token",
+  "user": {
+    "id": "user_123",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "phone": "+5511999999999",
+    "status": "ACTIVE"
+  }
+}
+```
+
+#### Upload
+
+```typescript
+// POST /upload
+{
+  "success": true,
+  "imageUrl": "https://storage.example.com/users/user-123/image.jpg",
+  "message": "Imagem do personagem enviada com sucesso!"
+}
+```
+
+## Regras de Deploy
+
+### Environment Variables
+
+- Use .env para configurações
+- Nunca commite secrets
+- Valide variáveis obrigatórias
+
+### Build Process
+
+- Otimize builds de produção
+- Implemente CI/CD
+- Use Docker para consistência
+
+### Monitoring
+
+- Implemente logging estruturado
+- Use health checks
+- Monitore performance
+
+## Regras de Qualidade e Validação
+
+### Obrigatoriedade de Lint, Build e Testes
+
+- **ANTES DE CADA COMMIT**: Execute `npm run lint` e garanta ZERO erros
+- **ANTES DE CADA PUSH**: Execute `npm run build` e garanta ZERO erros
+- **ANTES DE CADA PUSH**: Execute `npm run test` e garanta TODOS os testes passando
+- **ANTES DE CADA MERGE**: Execute `npm run test` e garanta todos os testes passando
+- **SEMPRE**: Valide se o projeto roda com `npm run dev` antes de commitar
+
+### Regra de Deploy - Apenas com Testes e Lint OK
+
+- **NUNCA FAÇA DEPLOY** se os testes não estiverem passando
+- **NUNCA FAÇA DEPLOY** se o lint não estiver OK
+- **SEMPRE EXECUTE** `npm run lint && npm run test` antes de qualquer deploy
+- **SEMPRE VERIFIQUE** que não há erros de build antes do deploy
+- **SE HOUVER ERROS**: Corrija TODOS os erros antes de fazer deploy
+- **DEPLOY SÓ APÓS**: Todos os testes passando + Lint OK + Build OK
+
+### Importância dos Testes Unitários
+
+- **TESTES SÃO OBRIGATÓRIOS**: Nunca suba código sem testes passando
+- **COBERTURA MÍNIMA**: Mantenha cobertura de testes acima de 80%
+- **TESTES ANTES DE COMMIT**: Execute testes antes de cada commit
+- **TESTES ANTES DE PUSH**: Execute testes antes de cada push
+- **TESTES ANTES DE MERGE**: Execute testes antes de cada merge
+- **TESTES QUEBRADOS = BUG**: Se testes quebram, corrija antes de continuar
+- **TESTES COMO DOCUMENTAÇÃO**: Testes devem documentar comportamento esperado
+- **TESTES COMO REFATORAÇÃO**: Use testes para validar refatorações
+
+### Checklist de Qualidade
+
+Antes de commitar:
+
+- [ ] Código segue princípios SOLID
+- [ ] Use Cases implementados corretamente
+- [ ] **LINT**: `npm run lint` sem erros
+- [ ] **BUILD**: `npm run build` sem erros
+- [ ] **DEV**: `npm run dev` roda sem problemas
+- [ ] **TESTES**: `npm run test` - TODOS os testes passando
+- [ ] **COBERTURA**: Cobertura de testes acima de 80%
+- [ ] Documentação atualizada
+- [ ] Performance aceitável
+- [ ] Segurança implementada
+- [ ] Error handling adequado
+- [ ] **API REST**: Padrões de resposta seguidos
+- [ ] **CAMPOS PADRONIZADOS**: `user`, `token`, `userId`, `imageUrl` usados corretamente
+
+### Comandos Obrigatórios
+
+```bash
+# Antes de cada commit
+npm run lint          # Deve retornar ZERO erros
+npm run build         # Deve retornar ZERO erros
+npm run test          # TODOS os testes devem passar (execução única)
+npm run dev           # Deve rodar sem problemas
+
+# Antes de cada push
+npm run test          # Todos os testes devem passar (execução única)
+npm run test:coverage # Verificar cobertura de testes
+
+# Antes de cada merge
+npm run test          # Todos os testes devem passar (execução única)
+npm run test:coverage # Verificar cobertura de testes
+
+# Comandos individuais para desenvolvimento
+npm run test:frontend # Testes do frontend apenas (execução única)
+npm run test:backend  # Testes do backend apenas (execução única)
+```
+
+### Regras de Commit
+
+- Use conventional commits: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:`
+- Mensagens em português
+- Descreva claramente a mudança
+- Exemplo: `feat: implementa sistema de autenticação em 3 passos`
+
+## Regras Específicas do Monorepo
+
+### Compartilhamento de Código
+
+- **SEMPRE** use o workspace `shared` para código comum
+- **NUNCA** duplique código entre frontend e backend
+- **SEMPRE** mantenha tipos TypeScript sincronizados
+- **SEMPRE** use as mesmas constantes de validação
+
+### Dependências
+
+- **SEMPRE** use versões compatíveis entre workspaces
+- **SEMPRE** resolva conflitos de dependências no root
+- **NUNCA** use versões diferentes do TypeScript
+- **SEMPRE** mantenha `package-lock.json` atualizado
+
+### Build e Deploy
+
+- **SEMPRE** teste build completo antes do deploy
+- **SEMPRE** verifique se shared foi buildado
+- **SEMPRE** use Docker para deploy consistente
+- **NUNCA** faça deploy sem testar integração completa
+
+### Desenvolvimento
+
+- **SEMPRE** use `npm run dev` para desenvolvimento completo
+- **SEMPRE** teste integração entre frontend e backend
+- **SEMPRE** mantenha ambiente Docker sincronizado
+- **NUNCA** desenvolva apenas um workspace isoladamente

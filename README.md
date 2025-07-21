@@ -2,6 +2,10 @@
 
 Sistema de landing page da Gwan com **análise avançada de personagens usando Inteligência Artificial**. O projeto permite que usuários façam upload de imagens de personagens e recebam análises detalhadas e estruturadas usando GPT-4 Vision.
 
+> **IMPORTANTE**: Este é um **MONOREPO** com frontend, backend e código compartilhado.
+> Para documentação completa, consulte: [`MONOREPO_README.md`](./MONOREPO_README.md)
+> Para PRD completo, consulte: [`PRD_GWAN_LANDING_PAGE.md`](./PRD_GWAN_LANDING_PAGE.md)
+
 ## 🎯 Funcionalidade Principal
 
 ### 🤖 Análise de Personagens com IA
@@ -151,6 +155,25 @@ docker-compose -f docker-compose.prod.yml up -d
 - ✅ **RegisterUserUseCase**: Cadastro de usuário no frontend
 - ✅ **ActivateUserUseCase**: Ativação de usuário no frontend
 - ✅ **ProcessCharacterImageUseCase**: Processamento de imagem com IA
+
+## 📚 Documentação Completa
+
+### 📋 PRD (Product Requirements Document)
+
+- **PRD Completo**: [`PRD_GWAN_LANDING_PAGE.md`](./PRD_GWAN_LANDING_PAGE.md)
+  - Visão geral do produto e proposta de valor
+  - Arquitetura técnica detalhada
+  - Funcionalidades principais e requisitos
+  - Fluxos de usuário com diagramas
+  - Roadmap de desenvolvimento
+  - Métricas de sucesso
+
+### 🏗️ Documentação Técnica
+
+- **Monorepo**: [`MONOREPO_README.md`](./MONOREPO_README.md)
+- **Padrões de API**: [`backend/API_STANDARDS.md`](./backend/API_STANDARDS.md)
+- **Setup do Ambiente**: [`ENVIRONMENT_SETUP.md`](./ENVIRONMENT_SETUP.md)
+- **Docker**: [`DOCKER_ENV_SUMMARY.md`](./DOCKER_ENV_SUMMARY.md)
 
 ### 🖼️ Upload e Processamento
 
